@@ -124,9 +124,13 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.log("MenuScreen: ", "About to call gameScreen");
                 if (button.equals(buttonSettings)) {
+
+                    stage.dispose();
                     game.setScreen(TowerDefense.settingsScreen);
 
                 } else if (button.equals(buttonContinue) || button.equals(buttonNewGame)) {
+
+                    stage.dispose();
                     game.setScreen(TowerDefense.gameScreen);
                 }
                 Gdx.app.log("MenuScreen: ", "gameScreen started");

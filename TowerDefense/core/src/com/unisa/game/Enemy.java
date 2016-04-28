@@ -5,6 +5,11 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Rectangle;
+
+
+
 
 /**
  * Created by Jon on 18/04/2016.
@@ -13,11 +18,15 @@ public class Enemy {
 
     private int health;
     private int type;
-    private float speed;
+    private int speed;
     private int dmgMod;
     private int x;
     private int y;
     private boolean carryingGold;
+    private int movementPoint;
+    private Rectangle hitBox;
+    private Circle circle;
+
     private Sprite[] walkingSouth;
     private Sprite[] walkingNorth;
     private Sprite[] walkingEast;
@@ -40,34 +49,55 @@ public class Enemy {
                 sprite = new Sprite(texture);
 
 
-                health = 50;
-                speed = 0.3f;
+                health = 800;
+                speed = 1;
                 dmgMod = 1;
                 //implement appropriate spriteSheets
                 break;
 
             //thief
             case (1):
-                health = 30;
-                speed = 8;
+                Pixmap pixmap1= new Pixmap(40, 40, Pixmap.Format.RGBA8888);
+                pixmap1.setColor(1, 0, 1, 05f);
+                pixmap1.fill();
+
+                texture = new TextureRegion(new Texture(pixmap1));
+                sprite = new Sprite(texture);
+                health = 500;
+                speed = 2;
                 dmgMod = 1;
                 //implement appropriate spriteSheets
                 break;
 
             //tank
             case (2):
-                health = 30;
-                speed = 5;
+                Pixmap pixmap2= new Pixmap(40, 40, Pixmap.Format.RGBA8888);
+                pixmap2.setColor(1, 1, 0, 05f);
+                pixmap2.fill();
+
+                texture = new TextureRegion(new Texture(pixmap2));
+                sprite = new Sprite(texture);
+                health = 1000;
+                speed = 1;
                 dmgMod = 1;
                 //implement appropriate spriteSheets
                 break;
         }
 
+
         y = Gdx.graphics.getHeight() - 45;
         x = 365;
+        hitBox = new Rectangle();
+        hitBox.setPosition(x,y);
+        circle = new Circle();
+        circle.setPosition(x,y);
         this.sprite.setPosition(x,y);
         carryingGold = false;
+        movementPoint = 1;
+
     }
+
+    public Enemy(){};
 
     public int getHealth() {
         return health;
@@ -77,7 +107,7 @@ public class Enemy {
         return type;
     }
 
-    public float getSpeed() {
+    public int getSpeed() {
         return speed;
     }
 
@@ -113,8 +143,6 @@ public class Enemy {
         return walkingWest;
     }
 
-
-
     public void setSpeed(int speed) {
         this.speed = speed;
     }
@@ -141,5 +169,29 @@ public class Enemy {
 
     public Sprite getSprite() {
         return sprite;
+    }
+
+    public int getMovementPoint() {
+        return movementPoint;
+    }
+
+    public void setMovementPoint(int movementPoint) {
+        this.movementPoint = movementPoint;
+    }
+
+    public Rectangle getHitBox() {
+        return hitBox;
+    }
+
+    public void setHitBox(Rectangle hitBox) {
+        this.hitBox = hitBox;
+    }
+
+    public Circle getCircle() {
+        return circle;
+    }
+
+    public void setCircle(Circle circle) {
+        this.circle = circle;
     }
 }
