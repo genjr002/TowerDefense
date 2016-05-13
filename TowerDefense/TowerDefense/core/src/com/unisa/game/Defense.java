@@ -19,7 +19,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 public class Defense extends Actor {
 
     private int damage;
-    private int atkSpeed;
+    private float atkSpeed;
+    private float atkCD;
     private int range;
     private int cost;
     private int x;
@@ -30,6 +31,8 @@ public class Defense extends Actor {
     private Rectangle defenseBounds;
     private Enemy target;
     private Projectile projectile;
+    private String description;
+    private int numUpgrades;
 
 
     private Sprite sprite;
@@ -41,66 +44,71 @@ public class Defense extends Actor {
         target = null;
         projectile = new Projectile(0);
 
+        numUpgrades = 1;
+
         switch (type){
             case 0:
-                damage = 5;
-                atkSpeed = 5;
+                damage = 200;
+                atkSpeed = 150;
+                atkCD = 150;
                 range = 200;
-                cost = 200;
+                cost = 400;
 
                 Pixmap pixmap= new Pixmap(100, 100, Pixmap.Format.RGBA8888);
                 pixmap.setColor(1, 0, 0, 05f);
                 pixmap.fill();
 
-                texture = new TextureRegion(new Texture(pixmap));
+                texture = new TextureRegion(new Texture("DefenseBasic.png"));
                 sprite = new Sprite(texture);
                 sprite.setRegionWidth(100);
                 sprite.setRegionHeight(100);
-
+                description = "Basic tower";
                 break;
             case 1:
-                damage = 5;
-                atkSpeed = 5;
-                range = 300;
-                cost = 200;
+                damage = 500;
+                atkSpeed = 300;
+                atkCD = 300;
+                range = 150;
+                cost = 800;
 
-                Pixmap pixmap1= new Pixmap(100, 100, Pixmap.Format.RGBA8888);
-                pixmap1.setColor(1, 0, 1, 05f);
-                pixmap1.fill();
+                description = "Short range tower with high Damage";
 
-                texture = new TextureRegion(new Texture(pixmap1));
+                texture = new TextureRegion(new Texture("DefenseShortRange.png"));
                 sprite = new Sprite(texture);
 
                 break;
             case 2:
-                damage = 5;
-                atkSpeed = 5;
+                damage = 0;
+                atkSpeed = 500;
+                atkCD = 500;
                 range = 400;
                 cost = 200;
 
                 Pixmap pixmap2= new Pixmap(100, 100, Pixmap.Format.RGBA8888);
                 pixmap2.setColor(1, 1, 0, 05f);
                 pixmap2.fill();
+                description = "Buffing Tower that deals no damage but increases\n damage of all towers within range";
 
-                texture = new TextureRegion(new Texture(pixmap2));
+                texture = new TextureRegion(new Texture("DefenseBuff.png"));
                 sprite = new Sprite(texture);
 
                 break;
             case 3:
-                damage = 5;
-                atkSpeed = 5;
-                range = 700;
-                cost = 200;
+                damage = 800;
+                atkSpeed = 600;
+                atkCD = 600;
+                range = 400;
+                cost = 1500;
 
                 Pixmap pixmap3= new Pixmap(100, 100, Pixmap.Format.RGBA8888);
                 pixmap3.setColor(1, 1, 1, 05f);
                 pixmap3.fill();
 
-                texture = new TextureRegion(new Texture(pixmap3));
+                description = "High Damage long range tower with slow attack speed";
+                texture = new TextureRegion(new Texture("DefenseLongRange.png"));
                 sprite = new Sprite(texture);
 
                 break;
-
         }
         defenseBounds = new Rectangle();
     }
@@ -109,7 +117,7 @@ public class Defense extends Actor {
         return damage;
     }
 
-    public int getAtkSpeed() {
+    public float getAtkSpeed() {
         return atkSpeed;
     }
 
@@ -165,10 +173,27 @@ public class Defense extends Actor {
         this.target = target;
     }
 
+    public float getAtkCD() {
+        return atkCD;
+    }
 
+    public void setAtkCD(float atkCD) {
+        this.atkCD = atkCD;
+    }
 
+    public void incremmentCD() {
+        this.atkCD++;
+    }
 
-// to give visual representation of the defenses range radious
+    public int getCost() {
+        return cost;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    // to give visual representation of the defenses range radious
     public Sprite getRangeSprite() {
         return rangeSprite;
     }
@@ -177,5 +202,11 @@ public class Defense extends Actor {
         this.rangeSprite = rangeSprite;
     }
 
+    public int getNumUpgrades() {
+        return numUpgrades;
+    }
 
+    public void setNumUpgrades(int numUpgrades) {
+        this.numUpgrades = numUpgrades;
+    }
 }

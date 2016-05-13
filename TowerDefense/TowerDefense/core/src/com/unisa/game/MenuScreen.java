@@ -126,6 +126,7 @@ public class MenuScreen implements Screen {
                 if (button.equals(buttonSettings)) {
 
                     stage.dispose();
+                    TowerDefense.settingsScreen.sender = "menu";    //so we can go back to the right screen
                     game.setScreen(TowerDefense.settingsScreen);
 
                 } else if (button.equals(buttonContinue) || button.equals(buttonNewGame)) {

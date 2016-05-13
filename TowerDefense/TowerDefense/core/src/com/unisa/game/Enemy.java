@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 
-
+import java.awt.Point;
 
 
 /**
@@ -26,6 +26,9 @@ public class Enemy {
     private int movementPoint;
     private Rectangle hitBox;
     private Circle circle;
+    private int id;
+    private int goldX;
+    private int goldY;
 
     private Sprite[] walkingSouth;
     private Sprite[] walkingNorth;
@@ -34,6 +37,7 @@ public class Enemy {
 
     private TextureRegion texture;
     private Sprite sprite;
+    private Sprite altSprite;
 
     public Enemy(int type){
 
@@ -41,14 +45,14 @@ public class Enemy {
             //basic footmen
 
             case (0):
-                Pixmap pixmap= new Pixmap(40, 40, Pixmap.Format.RGBA8888);
-                pixmap.setColor(1, 0, 0, 05f);
-                pixmap.fill();
 
-                texture = new TextureRegion(new Texture(pixmap));
+                texture = new TextureRegion(new Texture("Swordsman.png"));
                 sprite = new Sprite(texture);
 
+                texture = new TextureRegion(new Texture("Swordsman_Carrying.png"));
+                altSprite = new Sprite(texture);
 
+                id = 0;
                 health = 800;
                 speed = 1;
                 dmgMod = 1;
@@ -57,12 +61,13 @@ public class Enemy {
 
             //thief
             case (1):
-                Pixmap pixmap1= new Pixmap(40, 40, Pixmap.Format.RGBA8888);
-                pixmap1.setColor(1, 0, 1, 05f);
-                pixmap1.fill();
-
-                texture = new TextureRegion(new Texture(pixmap1));
+                texture = new TextureRegion(new Texture("Thief.png"));
                 sprite = new Sprite(texture);
+
+                texture = new TextureRegion(new Texture("Thief_Carrying.png"));
+                altSprite = new Sprite(texture);
+
+                id = 1;
                 health = 500;
                 speed = 2;
                 dmgMod = 1;
@@ -71,12 +76,13 @@ public class Enemy {
 
             //tank
             case (2):
-                Pixmap pixmap2= new Pixmap(40, 40, Pixmap.Format.RGBA8888);
-                pixmap2.setColor(1, 1, 0, 05f);
-                pixmap2.fill();
-
-                texture = new TextureRegion(new Texture(pixmap2));
+                texture = new TextureRegion(new Texture("knight.png"));
                 sprite = new Sprite(texture);
+
+                texture = new TextureRegion(new Texture("knight_Carrying.png"));
+                altSprite = new Sprite(texture);
+
+                id = 3;
                 health = 1000;
                 speed = 1;
                 dmgMod = 1;
@@ -193,5 +199,32 @@ public class Enemy {
 
     public void setCircle(Circle circle) {
         this.circle = circle;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int val) {id = val;}
+
+    public void setAltSprite(){
+        sprite = altSprite;
+        altSprite = null;
+    }
+
+    public int getGoldX() {
+        return goldX;
+    }
+
+    public void setGoldX(int goldX) {
+        this.goldX = goldX;
+    }
+
+    public int getGoldY() {
+        return goldY;
+    }
+
+    public void setGoldY(int goldY) {
+        this.goldY = goldY;
     }
 }

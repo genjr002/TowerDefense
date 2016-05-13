@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 
+import java.util.Random;
+
 /**
  * Created by Jon on 25/04/2016.
  */
@@ -15,16 +17,15 @@ public class Projectile {
     TextureRegion texture;
     Sprite sprite;
     Circle projectile;
-    Enemy target;
-
+    Defense defense;
+    int damage;
+    private Random rand = new Random();
     public Projectile(int type) {
-        Pixmap pixmap = new Pixmap(5,5, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.LIGHT_GRAY);
-        pixmap.fill();
 
-        texture = new TextureRegion(new Texture(pixmap));
+        texture = new TextureRegion(new Texture("projectile.png"));
         sprite = new Sprite(texture);
-
+        sprite.setSize(30,30);
+        sprite.rotate(rand.nextInt(180));
 
     }
 
@@ -52,8 +53,19 @@ public class Projectile {
         this.projectile = projectile;
     }
 
+    public int getDamage() {
+        return damage;
+    }
 
-    public Enemy getTarget() {
-        return target;
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+
+    public Defense getDefense() {
+        return defense;
+    }
+
+    public void setDefense(Defense defense) {
+        this.defense = defense;
     }
 }
