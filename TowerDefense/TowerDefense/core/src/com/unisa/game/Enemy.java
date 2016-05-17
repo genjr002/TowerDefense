@@ -29,6 +29,9 @@ public class Enemy {
     private int id;
     private int goldX;
     private int goldY;
+    private String enemyType; // to identify enemy type for certain abilities and towers
+    private int state; // 0 = normal, 1 = scared, 2 = enraged
+    private int stateTime; // how long target is scared or enraged
 
     private Sprite[] walkingSouth;
     private Sprite[] walkingNorth;
@@ -43,7 +46,6 @@ public class Enemy {
 
         switch (type){
             //basic footmen
-
             case (0):
 
                 texture = new TextureRegion(new Texture("Swordsman.png"));
@@ -56,6 +58,7 @@ public class Enemy {
                 health = 800;
                 speed = 1;
                 dmgMod = 1;
+                enemyType = "footmen";
                 //implement appropriate spriteSheets
                 break;
 
@@ -71,6 +74,7 @@ public class Enemy {
                 health = 500;
                 speed = 2;
                 dmgMod = 1;
+                enemyType = "thief";
                 //implement appropriate spriteSheets
                 break;
 
@@ -82,10 +86,27 @@ public class Enemy {
                 texture = new TextureRegion(new Texture("knight_Carrying.png"));
                 altSprite = new Sprite(texture);
 
-                id = 3;
+                id = 2;
                 health = 1000;
                 speed = 1;
                 dmgMod = 1;
+                enemyType = "tank";
+                //implement appropriate spriteSheets
+                break;
+
+            // barbarian, added by Brandon (coobj006)
+            case (3):
+                texture = new TextureRegion(new Texture("knight.png")); //need to replace at some point
+                sprite = new Sprite(texture);
+
+                texture = new TextureRegion(new Texture("knight_Carrying.png")); //this one as well
+                altSprite = new Sprite(texture);
+
+                id = 3;
+                health = 900;
+                speed = 1;
+                dmgMod = 1;
+                enemyType = "barbarian";
                 //implement appropriate spriteSheets
                 break;
         }
@@ -100,7 +121,7 @@ public class Enemy {
         this.sprite.setPosition(x,y);
         carryingGold = false;
         movementPoint = 1;
-
+        state = 0;
     }
 
     public Enemy(){};
@@ -161,10 +182,12 @@ public class Enemy {
         this.x = x;
         this.sprite.setPosition(x,y);
     }
+
     public void setY(int y) {
         this.y = y;
         this.sprite.setPosition(x,y);
     }
+
     public void setHealth(int health) {
         this.health = health;
     }
@@ -227,4 +250,15 @@ public class Enemy {
     public void setGoldY(int goldY) {
         this.goldY = goldY;
     }
+
+    public String getEnemyType() { return this.enemyType; }
+
+    public int getState() { return state; }
+
+    public void setState(int state) { this.state = state; }
+
+    public int getStateTime() { return stateTime; }
+
+    public void setStateTime(int stateTime) { this.stateTime = stateTime; }
+
 }
