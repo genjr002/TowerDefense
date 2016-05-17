@@ -38,6 +38,10 @@ import static java.lang.Math.sin;
 
 /**
  * Created by Jon on 14/04/2016.
+ *
+ * Problems encounter by Brandon
+ * Stomp Ability needs ConcurrentModificationException problem to be fixed: line 1381
+ * wave spawns random footmen before everything else in wave one: line 931
  */
 public class GameScreen extends ApplicationAdapter implements Screen , InputProcessor{
 
@@ -61,7 +65,9 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
     boolean playing = false;
     boolean dragging = false;
     boolean building = false;
-    boolean upgrading =false;
+    boolean upgrading = false;
+    boolean usingFireball = false;
+    boolean usingMagamStrike = false;
 
     int coinsRemaining;
     int enemiesRemaining;
@@ -85,10 +91,10 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
     TextButton pauseButton;
     TextButton buildButton;
     TextButton startButton;
-    TextButton abilityOne;
-    TextButton abilityTwo;
-    TextButton abilityThree;
-    TextButton abilityFour;
+    TextButton abilityOne;  // Fireball
+    TextButton abilityTwo;  // Roar
+    TextButton abilityThree;    // Stomp
+    TextButton abilityFour; // Magma Strike
     TextButton defenseOne;
     TextButton defenseTwo;
     TextButton defenseThree;
@@ -154,12 +160,18 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
     private Defense toBuild;
     private Defense toUpgrade;
+    
+    // Ability Cooldown times
+    private final float ABILITY1_CD_TIME = 6;
+    private final float ABILITY2_CD_TIME = 20;
+    private final float ABILITY3_CD_TIME = 30;
+    private final float ABILITY4_CD_TIME = 180;
 
     private float movementCD;
-    private float ability1CD;
-    private float ability2CD;
-    private float ability3CD;
-    private float ability4CD;
+    private float ability1CD = 0; // CD time: 6 seconds
+    private float ability2CD = 0; // CD time: 20 seconds
+    private float ability3CD = 0; // CD time: 30 seconds
+    private float ability4CD = ABILITY4_CD_TIME; // CD time: 180 seconds, starts on cooldown
     private float elapsedTime;
     private float lastTime;
     private float spawnTime;
@@ -646,98 +658,216 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         Enemy toRemove = null;
         Projectile bulletHit = null;
 
+        if (ability1CD > 0)
+        {
+            ability1CD--;
+        }
+        if (ability2CD > 0)
+        {
+            ability2CD--;
+        }
+        if (ability3CD > 0)
+        {
+            ability3CD--;
+        }
+        if (ability4CD > 0)
+        {
+            ability4CD--;
+        }
+
         if (movementCD <= 0.0f) {
             if(combatPhase == true) {
                 for (Enemy enemy : enemyList) {
-                    if (enemy.getMovementPoint() == 0) {
-                        enemy.setY(enemy.getY() + enemy.getSpeed());
-                        if (enemy.getY() >= Gdx.graphics.getHeight()) {
-                            toRemove = enemy;
-                            coinsRemaining--;
-
-                        }
-                    } else if (enemy.getMovementPoint() == 1) {
-
-                        if (enemy.isCarryingGold() == true) {
-                            enemy.setX(enemy.getX() - enemy.getSpeed());
-                            if (enemy.getX() <= 365) {
-                                enemy.setX(365);
-                                enemy.setMovementPoint(0);
-                                enemy.getSprite().rotate(-90);
-                            }
-                        } else {
-                            enemy.setY(enemy.getY() - enemy.getSpeed());
-                            if (enemy.getY() <= 780) {
-                                enemy.setY(780);
-                                enemy.setMovementPoint(2);
-                                enemy.getSprite().rotate(90);
-                            }
-                        }
-                    } else if (enemy.getMovementPoint() == 2) {
-                        if (enemy.isCarryingGold() == true) {
+                    if (enemy.getState() == 0){
+                        if (enemy.getMovementPoint() == 0) {
                             enemy.setY(enemy.getY() + enemy.getSpeed());
-                            if (enemy.getY() >= 780) {
-                                enemy.setY(780);
-                                enemy.setMovementPoint(1);
-                                enemy.getSprite().rotate(90);
+                            if (enemy.getY() >= Gdx.graphics.getHeight()) {
+                                toRemove = enemy;
+                                coinsRemaining--;
                             }
-                        } else {
-                            enemy.setX(enemy.getX() + enemy.getSpeed());
-                            if (enemy.getX() >= 1420) {
-                                enemy.setX(1420);
-                                enemy.setMovementPoint(3);
-                                enemy.getSprite().rotate(-90);
+                        } else if (enemy.getMovementPoint() == 1) {
+                            if (enemy.isCarryingGold() == true) {
+                                enemy.setX(enemy.getX() - enemy.getSpeed());
+                                if (enemy.getX() <= 365) {
+                                    enemy.setX(365);
+                                    enemy.setMovementPoint(0);
+                                    enemy.getSprite().rotate(-90);
+                                }
+                            } else {
+                                enemy.setY(enemy.getY() - enemy.getSpeed());
+                                if (enemy.getY() <= 780) {
+                                    enemy.setY(780);
+                                    enemy.setMovementPoint(2);
+                                    enemy.getSprite().rotate(90);
+                                }
                             }
-                        }
-                    } else if (enemy.getMovementPoint() == 3) {
-                        if (enemy.isCarryingGold() == true) {
-                            enemy.setX(enemy.getX() + enemy.getSpeed());
-                            if (enemy.getX() >= 1420) {
-                                enemy.setX(1420);
-                                enemy.setMovementPoint(2);
+                        } else if (enemy.getMovementPoint() == 2) {
+                            if (enemy.isCarryingGold() == true) {
+                                enemy.setY(enemy.getY() + enemy.getSpeed());
+                                if (enemy.getY() >= 780) {
+                                    enemy.setY(780);
+                                    enemy.setMovementPoint(1);
+                                    enemy.getSprite().rotate(90);
+                                }
+                            } else {
+                                enemy.setX(enemy.getX() + enemy.getSpeed());
+                                if (enemy.getX() >= 1420) {
+                                    enemy.setX(1420);
+                                    enemy.setMovementPoint(3);
+                                    enemy.getSprite().rotate(-90);
+                                }
+                            }
+                        } else if (enemy.getMovementPoint() == 3) {
+                            if (enemy.isCarryingGold() == true) {
+                                enemy.setX(enemy.getX() + enemy.getSpeed());
+                                if (enemy.getX() >= 1420) {
+                                    enemy.setX(1420);
+                                    enemy.setMovementPoint(2);
 
-                                enemy.getSprite().rotate(90);
+                                    enemy.getSprite().rotate(90);
+                                }
+                            } else {
+                                enemy.setY(enemy.getY() - enemy.getSpeed());
+                                if (enemy.getY() <= 450) {
+                                    enemy.setY(450);
+                                    enemy.setMovementPoint(4);
+                                    enemy.getSprite().rotate(-90);
+                                }
                             }
-                        } else {
+                        } else if (enemy.getMovementPoint() == 4) {
+                            if (enemy.isCarryingGold() == true) {
+                                enemy.setY(enemy.getY() + enemy.getSpeed());
+                                if (enemy.getY() >= 450) {
+                                    enemy.setY(450);
+                                    enemy.setMovementPoint(3);
+                                    enemy.getSprite().rotate(-90);
+                                }
+                            } else {
+                                enemy.setX(enemy.getX() - enemy.getSpeed());
+                                if (enemy.getX() <= 870) {
+                                    enemy.setX(870);
+                                    enemy.setMovementPoint(5);
+                                    enemy.getSprite().rotate(90);
+                                }
+                            }
+                        } else if (enemy.getMovementPoint() == 5) {
+
                             enemy.setY(enemy.getY() - enemy.getSpeed());
-                            if (enemy.getY() <= 450) {
-                                enemy.setY(450);
+                            if (enemy.getY() <= 250) {
+
+                                enemy.setAltSprite();
+                                enemy.setCarryingGold(true);
                                 enemy.setMovementPoint(4);
-                                enemy.getSprite().rotate(-90);
+                                enemy.getSprite().rotate(-180);
+                                Random rand = new Random();
+                                int num = goldList.size() - 1;
+                                enemy.setGoldX((int) goldList.get(num).getX());
+                                enemy.setGoldY((int) goldList.get(num).getY());
+                                goldList.remove(rand.nextInt(num));
+                                coinsRemaining--;
                             }
                         }
-                    } else if (enemy.getMovementPoint() == 4) {
-                        if (enemy.isCarryingGold() == true) {
-                            enemy.setY(enemy.getY() + enemy.getSpeed());
-                            if (enemy.getY() >= 450) {
-                                enemy.setY(450);
-                                enemy.setMovementPoint(3);
-                                enemy.getSprite().rotate(-90);
+                    }
+                    // all enemies that are frighten do not move
+                    else if (enemy.getState() == 1) {
+                        enemy.setStateTime(enemy.getStateTime() - 1);
+                        if (enemy.getStateTime() <= 0){
+                            enemy.setState(0);
+                        }
+                    }
+                    // all enemies that are enraged move at double speed
+                    else if (enemy.getState() == 2) {
+                        if (enemy.getMovementPoint() == 0) {
+                            enemy.setY(enemy.getY() + (enemy.getSpeed()*2));
+                            if (enemy.getY() >= Gdx.graphics.getHeight()) {
+                                toRemove = enemy;
+                                coinsRemaining--;
                             }
-                        } else {
-                            enemy.setX(enemy.getX() - enemy.getSpeed());
-                            if (enemy.getX() <= 870) {
-                                enemy.setX(870);
-                                enemy.setMovementPoint(5);
-                                enemy.getSprite().rotate(90);
+                        } else if (enemy.getMovementPoint() == 1) {
+                            if (enemy.isCarryingGold() == true) {
+                                enemy.setX(enemy.getX() - (enemy.getSpeed()*2));
+                                if (enemy.getX() <= 365) {
+                                    enemy.setX(365);
+                                    enemy.setMovementPoint(0);
+                                    enemy.getSprite().rotate(-90);
+                                }
+                            } else {
+                                enemy.setY(enemy.getY() - (enemy.getSpeed()*2));
+                                if (enemy.getY() <= 780) {
+                                    enemy.setY(780);
+                                    enemy.setMovementPoint(2);
+                                    enemy.getSprite().rotate(90);
+                                }
+                            }
+                        } else if (enemy.getMovementPoint() == 2) {
+                            if (enemy.isCarryingGold() == true) {
+                                enemy.setY(enemy.getY() + (enemy.getSpeed()*2));
+                                if (enemy.getY() >= 780) {
+                                    enemy.setY(780);
+                                    enemy.setMovementPoint(1);
+                                    enemy.getSprite().rotate(90);
+                                }
+                            } else {
+                                enemy.setX(enemy.getX() + (enemy.getSpeed()*2));
+                                if (enemy.getX() >= 1420) {
+                                    enemy.setX(1420);
+                                    enemy.setMovementPoint(3);
+                                    enemy.getSprite().rotate(-90);
+                                }
+                            }
+                        } else if (enemy.getMovementPoint() == 3) {
+                            if (enemy.isCarryingGold() == true) {
+                                enemy.setX(enemy.getX() + (enemy.getSpeed()*2));
+                                if (enemy.getX() >= 1420) {
+                                    enemy.setX(1420);
+                                    enemy.setMovementPoint(2);
+
+                                    enemy.getSprite().rotate(90);
+                                }
+                            } else {
+                                enemy.setY(enemy.getY() - (enemy.getSpeed()*2));
+                                if (enemy.getY() <= 450) {
+                                    enemy.setY(450);
+                                    enemy.setMovementPoint(4);
+                                    enemy.getSprite().rotate(-90);
+                                }
+                            }
+                        } else if (enemy.getMovementPoint() == 4) {
+                            if (enemy.isCarryingGold() == true) {
+                                enemy.setY(enemy.getY() + (enemy.getSpeed()*2));
+                                if (enemy.getY() >= 450) {
+                                    enemy.setY(450);
+                                    enemy.setMovementPoint(3);
+                                    enemy.getSprite().rotate(-90);
+                                }
+                            } else {
+                                enemy.setX(enemy.getX() - (enemy.getSpeed()*2));
+                                if (enemy.getX() <= 870) {
+                                    enemy.setX(870);
+                                    enemy.setMovementPoint(5);
+                                    enemy.getSprite().rotate(90);
+                                }
+                            }
+                        } else if (enemy.getMovementPoint() == 5) {
+
+                            enemy.setY(enemy.getY() - (enemy.getSpeed()*2));
+                            if (enemy.getY() <= 250) {
+
+                                enemy.setAltSprite();
+                                enemy.setCarryingGold(true);
+                                enemy.setMovementPoint(4);
+                                enemy.getSprite().rotate(-180);
+                                Random rand = new Random();
+                                int num = goldList.size() - 1;
+                                enemy.setGoldX((int) goldList.get(num).getX());
+                                enemy.setGoldY((int) goldList.get(num).getY());
+                                goldList.remove(rand.nextInt(num));
+                                coinsRemaining--;
                             }
                         }
-                    } else if (enemy.getMovementPoint() == 5) {
-
-                        enemy.setY(enemy.getY() - enemy.getSpeed());
-                        if (enemy.getY() <= 250) {
-
-                            enemy.setAltSprite();
-                            enemy.setCarryingGold(true);
-                            enemy.setMovementPoint(4);
-                            enemy.getSprite().rotate(-180);
-                            Random rand = new Random();
-                            int num = goldList.size()-1;
-                            enemy.setGoldX((int)goldList.get(num).getX());
-                            enemy.setGoldY((int)goldList.get(num).getY());
-                            goldList.remove(rand.nextInt(num));
-                            coinsRemaining--;
-
+                        enemy.setStateTime(enemy.getStateTime() - 1);
+                        if (enemy.getStateTime() <= 0) {
+                            enemy.setState(0);
                         }
                     }
 
@@ -786,15 +916,71 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
                 spawnTime++;
 
-                if(spawnTime == 100 && enemiesSpawned != 10){
-                    Random randInt = new Random();
+                if(spawnTime == 100 && enemiesSpawned != 10) {
+                    Enemy newEnemy;
+                    //Random randInt = new Random();
 
-                    int rand = randInt.nextInt(3);
-                    Enemy newEnemy = new Enemy(rand);
-                    newEnemy.setId(enemiesSpawned);
-                    enemyList.add(newEnemy);
-                    enemiesSpawned++;
-                    enemiesRemaining++;
+                    //int rand = randInt.nextInt(3);
+                    //Enemy newEnemy = new Enemy(rand);
+
+                    //MOVED THIS INTO IT'S OWN METHOD(addEnemy, line 1591) FOR EASE OF ACCESS
+                    //newEnemy.setId(enemiesSpawned);
+                    //enemyList.add(newEnemy);
+                    //enemiesSpawned++;
+                    //enemiesRemaining++;
+
+                    if(waveCount == 1) {
+                        // 2 thieves, tank, 3 footmen, 2 barbarians, 2 footmen
+                        if(enemiesSpawned == 1) {
+                            newEnemy = new Enemy(1);
+                            addEnemy(newEnemy);
+                        }
+
+                        else if(enemiesSpawned == 2) {
+                            newEnemy = new Enemy(1);
+                            addEnemy(newEnemy);
+                        }
+
+                        else if(enemiesSpawned == 3) {
+                            newEnemy = new Enemy(2);
+                            addEnemy(newEnemy);
+                        }
+
+                        else if(enemiesSpawned == 4) {
+                            newEnemy = new Enemy(0);
+                            addEnemy(newEnemy);
+                        }
+
+                        else if(enemiesSpawned == 5) {
+                            newEnemy = new Enemy(0);
+                            addEnemy(newEnemy);
+                        }
+
+                        else if(enemiesSpawned == 6) {
+                            newEnemy = new Enemy(0);
+                            addEnemy(newEnemy);
+                        }
+
+                        else if(enemiesSpawned == 7) {
+                            newEnemy = new Enemy(3);
+                            addEnemy(newEnemy);
+                        }
+
+                        else if(enemiesSpawned == 8) {
+                            newEnemy = new Enemy(3);
+                            addEnemy(newEnemy);
+                        }
+
+                        else if(enemiesSpawned == 9) {
+                            newEnemy = new Enemy(0);
+                            addEnemy(newEnemy);
+                        }
+
+                        else if(enemiesSpawned == 10) {
+                            newEnemy = new Enemy(0);
+                            addEnemy(newEnemy);
+                        }
+                    }
                     spawnTime = 0;
                 }
 
@@ -1204,13 +1390,69 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                 }
 
                 else if (button.equals(abilityOne)) {
-                    //do ability
+                    // if button is pressed during combat phase and skill is off cooldown
+                    if (combatPhase == true && usingFireball == false && ability1CD <= 0) {
+                        usingFireball = true;
+                        usingMagamStrike = false; // to prevent double casting
+                    } else if (combatPhase == true && usingFireball == false) {
+                        usingFireball = false;
+                    }
                 } else if (button.equals(abilityTwo)) {
-                    //do ability
+                    // if button is pressed during combat and is off cooldown
+                    if (combatPhase == true && ability2CD <= 0) {
+                        for (Enemy enemy : enemyList) {
+                            if (enemy.getEnemyType().equals("barbarian")) {
+                                enemy.setState(2);
+                                enemy.setStateTime(120); // should be 2 seconds
+                            } else {
+                                enemy.setState(1);
+                                enemy.setStateTime(120); // should be 2 seconds
+                            }
+                        }
+                        ability2CD = ABILITY2_CD_TIME;
+                    }
                 } else if (button.equals(abilityThree)) {
-                    //do ability
+                    // if button is pressed during combat and is off cooldown
+                    if (combatPhase == true && ability3CD <= 0) {
+                        for (Enemy enemy : enemyList) {
+                            if (enemy.getMovementPoint() == 0) {
+                                enemy.setHealth(enemy.getHealth() - 50);
+                            } else if (enemy.getMovementPoint() == 1) {
+                                enemy.setHealth(enemy.getHealth() - 100);
+                            } else if (enemy.getMovementPoint() == 2) {
+                                enemy.setHealth(enemy.getHealth() - 175);
+                            } else if (enemy.getMovementPoint() == 3) {
+                                enemy.setHealth(enemy.getHealth() - 250);
+                            } else if (enemy.getMovementPoint() == 4) {
+                                enemy.setHealth(enemy.getHealth() - 300);
+                            }
+                        }
+                        for (Enemy enemy : enemyList) {
+                            //deal with ConcurrentModificationException problem
+                            if (enemy.getHealth() <= 0) {
+                                if (enemy.isCarryingGold() && enemy.getSprite().getY() < Gdx.graphics.getHeight()) {
+                                    coinsRemaining++;
+                                    texture = new TextureRegion(new Texture("GoldSack.png"));
+                                    Sprite newSprite = new Sprite(texture);
+                                    newSprite.setSize(25, 25);
+                                    newSprite.setPosition(enemy.getGoldX(), enemy.getGoldY());
+                                    goldList.add(newSprite);
+                                }
+                                enemyList.remove(enemy);
+                                enemiesRemaining--;
+                                if (enemiesRemaining <= 0 && enemiesSpawned == 10) {
+                                    combatPhase = false;
+                                    if (coinsRemaining >= 0) {
+                                        waveCount++;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 } else if (button.equals(abilityFour)) {
                     //do ability
+                    if (combatPhase == true && usingMagamStrike == false && ability4CD <= 0) {
+                    }
                 } else if (button.equals(buildbackButton)) {
                     if (building) {
                         building = false;
@@ -1352,5 +1594,10 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
     public boolean scrolled(int amount) {
         return false;
     }
-
+    public void addEnemy(Enemy newEnemy) {
+        newEnemy.setId(enemiesSpawned);
+        enemyList.add(newEnemy);
+        enemiesSpawned++;
+        enemiesRemaining++;
+    }
 }
