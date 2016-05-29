@@ -2,6 +2,7 @@ package com.unisa.game;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -34,6 +35,7 @@ public class MenuScreen implements Screen {
     TextureRegion texture;
 
 
+
     Image background;
 
     public MenuScreen(TowerDefense prac3Scene) {
@@ -41,6 +43,7 @@ public class MenuScreen implements Screen {
     }
 
     public void create() {
+
         Gdx.app.log("MenuScreen:", "Menuscreen create");
         batch = new SpriteBatch();
         skin = new Skin(Gdx.files.internal("uiskin.json"));
@@ -129,9 +132,15 @@ public class MenuScreen implements Screen {
                     TowerDefense.settingsScreen.sender = "menu";    //so we can go back to the right screen
                     game.setScreen(TowerDefense.settingsScreen);
 
-                } else if (button.equals(buttonContinue) || button.equals(buttonNewGame)) {
+                } else if (button.equals(buttonContinue)) {
 
                     stage.dispose();
+                    game.continuing = true;
+                    game.setScreen(TowerDefense.gameScreen);
+                } else if (button.equals(buttonNewGame)) {
+                    game.prefs.putBoolean("previousGame", true);
+                    game.ResetPrefs();
+                    game.continuing = false;
                     game.setScreen(TowerDefense.gameScreen);
                 }
                 Gdx.app.log("MenuScreen: ", "gameScreen started");
@@ -140,4 +149,6 @@ public class MenuScreen implements Screen {
         button.toFront();
         stage.addActor(button);
     }
+
+
 }

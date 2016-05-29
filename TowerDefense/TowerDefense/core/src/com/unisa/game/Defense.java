@@ -12,11 +12,14 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Json;
+
+import java.io.Serializable;
 
 /**
  * Created by Jon on 18/04/2016.
  */
-public class Defense extends Actor {
+public class Defense extends Actor{
 
     private int damage;
     private float atkSpeed;
@@ -40,6 +43,7 @@ public class Defense extends Actor {
 
     public Defense(int type) {
 
+        this.type = type;
         rangeRadious = new Circle();
         target = null;
         projectile = new Projectile(0);
@@ -208,5 +212,9 @@ public class Defense extends Actor {
 
     public void setNumUpgrades(int numUpgrades) {
         this.numUpgrades = numUpgrades;
+    }
+
+    public Integer getType(){
+        return type;
     }
 }

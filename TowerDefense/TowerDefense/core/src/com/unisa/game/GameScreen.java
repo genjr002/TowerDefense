@@ -3,6 +3,7 @@ package com.unisa.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -26,8 +27,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Json;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Random;
 
 import static java.lang.Math.atan2;
@@ -48,6 +52,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
     TowerDefense game;
     private Skin skin;
+    SaveData currentSave;
 
     private Stage mainStage;
     private Stage buildStage;
@@ -156,6 +161,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
     private ArrayList<Defense> defenseList = new ArrayList<Defense>();
     private ArrayList<Projectile> projectileList = new ArrayList<Projectile>();
     private ArrayList<Sprite> goldList = new ArrayList<Sprite>();
+    public static ArrayList<Defense> savedDefenses = new ArrayList<Defense>();
 
 
     private Defense toBuild;
@@ -198,7 +204,135 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         this.game = game;
     }
 
+    void LoadGameState(){
+        Gdx.app.log("In GameScreen", "--- LoadGameState");
 
+        combatPhase = false;
+        state = State.RUNNING;
+
+        if (game.continuing){
+            this.coinsRemaining = game.prefs.getInteger("coinsValue");
+            Gdx.app.log("wave prefs:", " " + this.coinsRemaining);
+            this.waveCount = game.prefs.getInteger("waveValue");
+            Gdx.app.log("wave prefs:", " " + this.waveCount);
+            this.meat = game.prefs.getInteger("meatValue");
+            Gdx.app.log("meat prefs:", " " + this.meat);
+            LoadDefenses();
+        } else {
+            ResetPrefs();
+        }
+    }
+
+
+    void SaveGameState(){
+        Gdx.app.log("In GameScreen", "--- SaveGameState");
+        game.prefs.putInteger("coinsValue", this.coinsRemaining);
+        game.prefs.putInteger("waveValue", this.waveCount);
+        game.prefs.putInteger("meatValue", this.meat);
+        game.prefs.flush();
+        Gdx.app.log("in SaveGameState:", " coins" + this.coinsRemaining);
+        Gdx.app.log("in SaveGameState", " wave " + this.waveCount);
+        Gdx.app.log("in SaveGameState", " meat" + this.meat);
+    }
+
+    void ResetPrefs(){
+        Gdx.app.log("In GameScreen", "--- Reset Prefs");
+        game.prefs.putInteger("coinsValue", 20);
+        game.prefs.putInteger("waveValue", 0);
+        game.prefs.putInteger("meatValue", 5000);
+        game.prefs.flush();
+
+
+        //set the local variables with the saved ones
+        this.coinsRemaining = game.prefs.getInteger("coinsValue");
+        Gdx.app.log("in ResetPrefs", " coins" + this.coinsRemaining);
+        this.waveCount = game.prefs.getInteger("waveValue");
+        Gdx.app.log("in ResetPrefs", " wave" + this.waveCount);
+        this.meat = game.prefs.getInteger("meatValue");
+        Gdx.app.log("in ResetPrefs", " meat" + this.meat);
+    }
+
+    void SaveDefenses(){
+//        if (currentSave == null){
+//            currentSave = new SaveData();
+//        }
+        Save.sd.setDefenses(defenseList);
+        Save.save();
+    }
+
+    void LoadDefenses(){
+        Save.load();
+        defenseList = Save.sd.getDefenseList();
+        RefreshDefensesFromLoad();
+        //currentSave.toString();
+    }
+
+    void RefreshDefensesFromLoad(){
+
+        for (Defense d : defenseList ){
+            d.setRangeRadious(new Circle(d.getSprite().getX() + 50,
+                    d.getSprite().getY() + 50, d.getRange()));
+        }
+
+    }
+
+//    void SaveDefenses(){
+//        Gdx.app.log("in SaveDefenses -- OLD Defense ", "list");
+//
+//        if (defenseList != null) {
+//            if (defenseList.size() > 0) {
+//                for (int i = 0; i < defenseList.size(); i++){
+//                    Gdx.app.log("Defense : ",  "" + defenseList.get(i).getName());
+//                }
+//
+//                ArrayList defenses = defenseList;
+//                //int[] theInts = {1,2,3,4,5};
+//
+//                Hashtable<String, String> hashTable = new Hashtable<String, String>();
+//
+//                Json json = new Json();
+//                Gdx.app.log("before : ", "json");
+//                hashTable.put("Defenses", json.toJson(defenses)); //here you are serializing the array
+//
+//                Gdx.app.log("after : ", "json");
+//                //... //putting the map into preferences
+//                game.prefs.put(hashTable);
+//                game.prefs.flush();
+//            } else {
+//                Gdx.app.log("in SaveDefenses ",  "SIZE < 0" );
+//            }
+//        } else {
+//            Gdx.app.log("in SaveDefenses ",  "IS NULL" );
+//        }
+//    }
+//
+//    void LoadDefenses(){
+//
+//        Gdx.app.log("in LoadDefenses -- NEW Defense ",  "list" );
+//
+//        if (defenseList != null){
+//            if (defenseList.size() > 0){
+//                Json json = new Json();
+//
+//                String serializedArrayList = TowerDefense.prefs.getString("Defenses");
+//                ArrayList deserializedArray = json.fromJson(ArrayList.class, serializedArrayList); //you need to pass the class type - be aware of it!
+//                defenseList = deserializedArray;
+//
+//
+//
+//                for (int i = 0; i < defenseList.size(); i++){
+//                    Gdx.app.log("Defense : ",  "" + defenseList.get(i).toString());
+//                }
+//
+//            } else {
+//                Gdx.app.log("in LoadDefenses ",  "SIZE < 0" );
+//            }
+//        } else {
+//            Gdx.app.log("in LoadDefenses ",  "IS NULL" );
+//        }
+//
+//
+//    }
 
     public void create() {
         Gdx.app.log("GameScreen: ", "gameScreen create " + Gdx.graphics.getWidth() + " " + Gdx.graphics.getHeight());
@@ -217,9 +351,12 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
 
         movementCD = 0.0f;
-        coinsRemaining = 20;
-        waveCount = 0;
-        meat = 5000;
+//        coinsRemaining = 20;
+//        waveCount = 0;
+//        meat = 5000;
+        //load from gamestate instead
+        LoadGameState();
+
         enemiesSpawned = 1;
         enemiesRemaining = 0;
 
@@ -1294,6 +1431,8 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                 combatPhase = false;
                 if(coinsRemaining >= 0){
                     waveCount++;
+                    SaveGameState();
+                    SaveDefenses();
                 }
             }
         }
@@ -1541,6 +1680,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
         Gdx.app.log("GameScreen: ", "show called ");
         if(playing == false){
+            LoadGameState();
             create();
         }
         else{
@@ -1578,7 +1718,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.log("MenuScreen: ", "About to call gameScreen");
                 if (button.equals(buildButton)) {
-                    building= true;
+                    building = true;
                     toBuild = null;
 
                     Gdx.input.setInputProcessor(buildStage);
@@ -1606,11 +1746,11 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     }
                     combatPhase = true;
                     //call method to remove build and start UI elements
-                } else if (button.equals(pauseContinueButton)){
+                } else if (button.equals(pauseContinueButton)) {
                     Gdx.app.log("GameScreen: ", "About to call resume");
                     game.resume();
                     resetStage();
-                } else if (button.equals(pauseExitButton)){
+                } else if (button.equals(pauseExitButton)) {
                     Gdx.app.log("GameScreen: ", "About to Exit Level");
 
                     game.resume();
@@ -1618,13 +1758,11 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     game.setScreen(TowerDefense.menuScreen);
 
 
-                } else if (button.equals(pauseSettingsButton)){
+                } else if (button.equals(pauseSettingsButton)) {
                     TowerDefense.settingsScreen.sender = "game";    //so we can go back to the right screen
                     game.resume();
                     game.setScreen(TowerDefense.settingsScreen);
-                }
-
-                else if (button.equals(abilityOne)) {
+                } else if (button.equals(abilityOne)) {
                     // if button is pressed during combat phase and skill is off cooldown
                     if (combatPhase == true && usingFireball == false && ability1CD <= 0) {
                         usingFireball = true;
@@ -1693,77 +1831,76 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                         building = false;
                         resetStage();
                     }
-                } else if(button.equals(upgradebackButton)){
-                    if(upgrading){
+                } else if (button.equals(upgradebackButton)) {
+                    if (upgrading) {
                         upgrading = false;
                         resetStage();
                     }
-                } else if (button.equals(defenseOne)){
-                    if(meat >= 400){
+                } else if (button.equals(defenseOne)) {
+                    if (meat >= 400) {
                         toBuild = new Defense(0);
                         Gdx.app.log("new Building", "Goblin");
                         resetStage();
-                    }
-                    else{
+                    } else {
 
                     }
 
 
-                }else if (button.equals(defenseTwo)){
-                    if(meat >= 800){
+                } else if (button.equals(defenseTwo)) {
+                    if (meat >= 800) {
                         toBuild = new Defense(1);
                         Gdx.app.log("new Building", "Minotaur");
                         resetStage();
                     }
 
 
-                }else if (button.equals(defenseThree)){
-                    if(meat >= 800){
+                } else if (button.equals(defenseThree)) {
+                    if (meat >= 800) {
                         toBuild = new Defense(2);
                         Gdx.app.log("new Building", "War Drummer");
                         resetStage();
                     }
 
 
-                }else if (button.equals(defenseFour)){
-                    if(meat >= 1500){
+                } else if (button.equals(defenseFour)) {
+                    if (meat >= 1500) {
                         toBuild = new Defense(3);
                         Gdx.app.log("new Building", "Drake");
 
                         resetStage();
                     }
 
-                }else if(button.equals(upgradeButtonOne)){
-                    toUpgrade.setDamage(toUpgrade.getDamage()+50);
+                } else if (button.equals(upgradeButtonOne)) {
+                    toUpgrade.setDamage(toUpgrade.getDamage() + 50);
 
                     resetStage();
                     upgrading = false;
-                    meat -= 50*toUpgrade.getNumUpgrades();
+                    meat -= 50 * toUpgrade.getNumUpgrades();
                     toUpgrade = null;
-                }else if(button.equals(upgradeButtonTwo)){
-                    toUpgrade.setRange(toUpgrade.getRange()+50);
+                } else if (button.equals(upgradeButtonTwo)) {
+                    toUpgrade.setRange(toUpgrade.getRange() + 50);
                     toUpgrade.setRangeRadious(new Circle(toUpgrade.getSprite().getX() + 50,
                             toUpgrade.getSprite().getY() + 50, toUpgrade.getRange() + 50));
 
                     upgrading = false;
                     resetStage();
-                    meat -= 50*toUpgrade.getNumUpgrades();
+                    meat -= 50 * toUpgrade.getNumUpgrades();
                     toUpgrade = null;
-                }else if(button.equals(upgradeButtonThree)){
-                    if(toUpgrade.getAtkSpeed() > 50) {
+                } else if (button.equals(upgradeButtonThree)) {
+                    if (toUpgrade.getAtkSpeed() > 50) {
                         toUpgrade.setAtkSpeed((int) toUpgrade.getAtkSpeed() - 50);
                         toUpgrade.setAtkCD(toUpgrade.getAtkSpeed());
 
                         upgrading = false;
                         resetStage();
-                        meat -= 50*toUpgrade.getNumUpgrades();
+                        meat -= 50 * toUpgrade.getNumUpgrades();
                         toUpgrade = null;
                     }
 
                 }
 
 
-               // Gdx.app.log("MenuScreen: ", "gameScreen started");
+                // Gdx.app.log("MenuScreen: ", "gameScreen started");
             }
         });
         button.toFront();
@@ -1835,4 +1972,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         enemiesSpawned++;
         enemiesRemaining++;
     }
+
 }
+
+
