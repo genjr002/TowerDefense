@@ -19,15 +19,28 @@ public class Projectile {
     Sprite sprite;
     Circle projectile;
     Defense defense;
+    float x;
+    float y;
     int damage;
+    String origin; // what shot this projectile
     private Random rand = new Random();
     public Projectile(int type) {
+        switch (type) {
+            case 0:
+                texture = new TextureRegion(new Texture("projectile.png"));
+                sprite = new Sprite(texture);
+                sprite.setSize(30, 30);
+                sprite.rotate(rand.nextInt(180));
+                origin = "tower";
+                break;
 
-        texture = new TextureRegion(new Texture("projectile.png"));
-        sprite = new Sprite(texture);
-        sprite.setSize(30,30);
-        sprite.rotate(rand.nextInt(180));
-
+            case 1:
+                texture = new TextureRegion(new Texture("projectile.png"));
+                sprite = new Sprite(texture);
+                sprite.setSize(30, 30);
+                sprite.rotate(rand.nextInt(180));
+                origin = "dragon";
+        }
     }
 
     public TextureRegion getTexture() {
@@ -68,5 +81,25 @@ public class Projectile {
 
     public void setDefense(Defense defense) {
         this.defense = defense;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public String getOrigin() {
+        return origin;
     }
 }
