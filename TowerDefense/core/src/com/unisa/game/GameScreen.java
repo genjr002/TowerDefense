@@ -70,7 +70,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
     boolean building = false;
     boolean upgrading = false;
     boolean usingFireball = false;
-    boolean usingMagamStrike = false;
+    boolean usingMagmaStrike = false;
 
     int coinsRemaining;
     int enemiesRemaining;
@@ -504,6 +504,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                             overlay.setWidth(Gdx.graphics.getWidth());
                         }
                     }
+
                 }
             }
         });
@@ -1353,19 +1354,57 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
                 if(projectileList.size() > 0) {
                     for (Projectile projectile : projectileList) {
+                        if(projectile.getOrigin().equals("tower")) {
+                            if (projectile.getDefense().getTarget() != null) {
 
-                        if(projectile.getDefense().getTarget() != null) {
+                                float x = projectile.getSprite().getX();
+                                float y = projectile.getSprite().getY();
 
-                            float x = projectile.getSprite().getX();
-                            float y = projectile.getSprite().getY();
+                                float targetx = projectile.getDefense().getTarget().getX();
+                                float targety = projectile.getDefense().getTarget().getY();
 
-                            float targetx = projectile.getDefense().getTarget().getX();
-                            float targety = projectile.getDefense().getTarget().getY();
+                                double deltaX = targetx - x;
+                                double deltaY = targety - y;
+                                double angle = atan2(deltaY, deltaX);
+
+
+                                x = (float) (x + 1000 * deltaTime * cos(angle));
+                                y = (float) (y + 1000 * deltaTime * sin(angle));
+
+                                projectile.getSprite().rotate(25);
+                                projectile.getSprite().setPosition(x, y);
+                                projectile.getProjectile().setPosition(x, y);
+
+                                if (projectile.getDefense().getTarget().getCircle().overlaps(projectile.getProjectile())) {
+                                    projectile.getDefense().getTarget().setHealth(projectile.getDefense().getTarget().getHealth() -
+                                            projectile.getDamage());
+                                    bulletHit = projectile;
+                                }
+                                if (projectile.getDefense().getTarget().getHealth() < 0) {
+
+                                    if (enemyList.contains(projectile.getDefense().getTarget())) {
+                                        toRemove = projectile.getDefense().getTarget();
+                                        Gdx.app.log("Target", "killed");
+                                        meat += 25;
+
+                                    }
+                                    projectile.getDefense().setTarget(null);
+                                }
+
+                            } else {
+                                bulletHit = projectile;
+                            }
+                        }
+                        else if(projectile.getOrigin().equals("dragon")) {
+                            float x = (projectile.getSprite().getX()) + (projectile.getSprite().getWidth() / 2);
+                            float y = (projectile.getSprite().getY()) + (projectile.getSprite().getHeight() / 2);
+
+                            float targetx = projectile.getX();
+                            float targety = projectile.getY();
 
                             double deltaX = targetx - x;
                             double deltaY = targety - y;
                             double angle = atan2(deltaY, deltaX);
-
 
 
                             x = (float) (x + 1000 * deltaTime * cos(angle));
@@ -1375,24 +1414,34 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                             projectile.getSprite().setPosition(x, y);
                             projectile.getProjectile().setPosition(x, y);
 
-                            if (projectile.getDefense().getTarget().getCircle().overlaps(projectile.getProjectile())) {
-                                projectile.getDefense().getTarget().setHealth(projectile.getDefense().getTarget().getHealth() -
-                                        projectile.getDamage());
-                                bulletHit = projectile;
-                            }
-                            if (projectile.getDefense().getTarget().getHealth() < 0) {
-
-                                if(enemyList.contains(projectile.getDefense().getTarget())) {
-                                    toRemove = projectile.getDefense().getTarget();
-                                    Gdx.app.log("Target", "killed");
-                                    meat += 25;
-
+                            // check if projectile has reached its X position
+                            if (projectile.getSprite().getX() >= projectile.getX()) {
+                                // check if Y position is on the left side of the dragon
+                                if ((projectile.getSprite().getY()) + (projectile.getSprite().getHeight() / 2) <=
+                                        (dragonSpr.getY() + dragonSpr.getHeight() / 2)) {
+                                    if(projectile.getSprite().getY() <= projectile.getY()) {
+                                        Circle AOE = new Circle(projectile.getX(), projectile.getY(), 60f);
+                                        for (Enemy enemy: enemyList) {
+                                            if (enemy.getCircle().overlaps(AOE)) {
+                                                enemy.setHealth(enemy.getHealth() - projectile.getDamage());
+                                                bulletHit = projectile;
+                                            }
+                                        }
+                                    }
                                 }
-                                projectile.getDefense().setTarget(null);
+                                // if not then it must be on the right side
+                                else {
+                                    if (projectile.getSprite().getY() >= projectile.getY()) {
+                                        Circle AOE = new Circle(projectile.getX(), projectile.getY(), 60f);
+                                        for (Enemy enemy: enemyList) {
+                                            if (enemy.getCircle().overlaps(AOE)) {
+                                                enemy.setHealth(enemy.getHealth() - projectile.getDamage());
+                                                bulletHit = projectile;
+                                            }
+                                        }
+                                    }
+                                }
                             }
-
-                        }else{
-                            bulletHit = projectile;
                         }
                     }
                     if(bulletHit != null){
@@ -1492,6 +1541,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                             abilityThree.setText((ability3CD > 0)?Integer.toString(ability3CD):"");
                         }
                         if (ability4CD > 0)
+                        if (ability4CD > 0)
                         {
                             ability4CD--;
                             abilityFour.setText((ability4CD > 0)?Integer.toString(ability4CD):"");
@@ -1505,6 +1555,22 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                         startButton.setPosition(startButton.getX() + 5, startButton.getY());
                         buildButton.setPosition(buildButton.getX() + 5, buildButton.getY());
                     }
+                    // if the screen is touched while either fireball or magma strike while said ability is off cooldown
+                    if(Gdx.input.isTouched() && usingFireball && ability1CD <= 0) {
+                        Projectile projectile = new Projectile(1);
+                        projectile.setDamage(80);
+                        projectile.setProjectile(new Circle(dragonSpr.getX() / 2, dragonSpr.getY() / 2, 20f));
+                        projectile.getSprite().setPosition(dragonSpr.getX() + 50, dragonSpr.getY() + 50);
+                        projectile.setX(Gdx.input.getX());
+                        projectile.setY(Gdx.input.getY());
+                        projectileList.add(projectile);
+                        dragonFireball.play();
+                        ability1CD = ABILITY1_CD_TIME;
+                    }
+                    else if(Gdx.input.isTouched() && usingMagmaStrike && ability4CD <= 0) {
+
+                    }
+
                 } else {
                     if (startButton.getX() > 1585) {
                         buildButton.setPosition(buildButton.getX() - 5, buildButton.getY());
@@ -1807,12 +1873,12 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     game.resume();
                     game.setScreen(TowerDefense.settingsScreen);
                 } else if (button.equals(abilityOne)) {
-                    // if button is pressed during combat phase and skill is off cooldown
-                    if (combatPhase == true && usingFireball == false && ability1CD <= 0) {
-                        dragonFireball.play();
-                        ability1CD = ABILITY1_CD_TIME;
+                    // if button is pressed during combat phase
+                    if (combatPhase == true && usingFireball == false) {
+//                        dragonFireball.play();
+//                        ability1CD = ABILITY1_CD_TIME;
                         usingFireball = true;
-                        usingMagamStrike = false; // to prevent double casting
+                        usingMagmaStrike = false; // to prevent double casting
 
                         for(Enemy enemy: enemyList){
                             if(enemy.getMovementPoint() == 5 ||enemy.getMovementPoint() == 6) {
@@ -1822,8 +1888,8 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                                 }
                             }
                         }
-                    } else if (combatPhase == true && usingMagamStrike == false) {
-                        usingFireball = false;
+                    } else if (combatPhase == true && usingFireball == true) {
+                        usingFireball = false; // to cancel ability casting
                     }
 
                 } else if (button.equals(abilityTwo)) {
@@ -1866,8 +1932,12 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     }
                 } else if (button.equals(abilityFour)) {
                     //do ability
-                    if (combatPhase == true && usingMagamStrike == false && ability4CD <= 0) {
-                        dragonMagmaBlast.play();
+                    if (combatPhase == true && usingMagmaStrike == false) {
+                        usingMagmaStrike = true;
+                        usingFireball = false; // to prevent double casting
+                    }
+                    else if (combatPhase == true && usingMagmaStrike == true) {
+                        usingMagmaStrike = false; // to cancel ability casting
                     }
                 } else if (button.equals(buildbackButton)) {
                     buttonSound.play();
