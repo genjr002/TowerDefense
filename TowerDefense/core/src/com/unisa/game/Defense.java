@@ -146,6 +146,11 @@ public class Defense extends Actor{
         return sprite;
     }
 
+    public void setSprite(String textureName) {
+        this.texture = new TextureRegion(new Texture(textureName));
+        this.sprite = new Sprite(texture);
+    }
+
     public void setY(int y) {
         this.y = y;
     }

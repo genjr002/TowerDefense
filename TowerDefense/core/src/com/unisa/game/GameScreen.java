@@ -173,6 +173,8 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
     private Defense toBuild;
     private Defense toUpgrade;
+    private float currentX; //the current x position of the defense
+    private float currentY; //the current y position of the defense
     
     // Ability Cooldown times
     private final int ABILITY1_CD_TIME = 6;
@@ -221,7 +223,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
     Sprite Test4;
     Sprite Test5;
 
-
+    private Cell[][] screenGrid;
 
 
     // constructor to keep a reference to the main Game class
@@ -244,7 +246,9 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
             Gdx.app.log("meat prefs:", " " + this.meat);
             LoadDefenses();
         } else {
-            ResetPrefs();
+            //new game
+            ResetPrefs(); //reset the saved variables for round number, gold etc
+            ResetDefenses();   //reset the defenses for the new game
         }
     }
 
@@ -298,6 +302,12 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
             d.setRangeRadious(new Circle(d.getSprite().getX() + 50,
                     d.getSprite().getY() + 50, d.getRange()));
         }
+
+    }
+
+    void ResetDefenses(){
+
+        defenseList = new ArrayList<Defense>();
 
     }
 
@@ -377,6 +387,9 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         pathPart3 = new Rectangle();
         pathPart4 = new Rectangle();
         pathPart5 = new Rectangle();
+
+        //create grid
+        CreateScreenGrid();
 
         //draws a circle around new defenses to show range
         shapeRenderer = new ShapeRenderer();
@@ -521,142 +534,55 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     toBuild.getDefenseBounds().setPosition(x, y);
 
 
-                    if (toBuild.getDefenseBounds().overlaps(pathPart1)) {
-                        Gdx.app.log("path1", "overlaps object");
-                        Gdx.app.log("Y pos ", " = " + y);
-                        if (y < pathPart1.getY() + pathPart2.getHeight() / 2) {
-                            Gdx.app.log("path1", "y less than!!");
-                            y = pathPart1.getY();
-                        } else if (x < pathPart1.getX() + pathPart1.getWidth() / 2) {
-                            Gdx.app.log("path1", "x less than overlaps object");
-                            x = pathPart1.getX();
-                        } else if (x > pathPart1.getX() + pathPart1.getWidth() / 2) {
-                            Gdx.app.log("path1", "x greater than overlaps object");
-                            x = pathPart1.getX() + pathPart1.getWidth();
-                        }
-                    }
+                    for (int r = 0; r < 15; r++){
+                        for (int c = 0; c < 10; c++){
+                            //Gdx.app.log("testing", "screengrid" + "[" + r + "]"+ "[" + c + "]");
 
-                    if (toBuild.getDefenseBounds().overlaps(pathPart2)) {
-                        if (y < pathPart2.getY() + pathPart2.getHeight() / 2) {
-                            Gdx.app.log("path2", "y less than overlaps object");
-                            Gdx.app.log("overlap position: ", " x = " + x + " y = " + y);
-                            y = pathPart2.getY();
-                        } else if (y > pathPart2.getY() + pathPart2.getHeight() / 2) {
-                            Gdx.app.log("path2", "y greater than overlaps object");
-                            Gdx.app.log("overlap position: ", " x = " + x + " y = " + y);
-                            y = pathPart2.getY() + pathPart2.getHeight();
-                        }
-                    }
 
-                    if (toBuild.getDefenseBounds().overlaps(pathPart3)) {
-                        Gdx.app.log("path3", "overlaps object");
-                        Gdx.app.log("Y pos ", " = " + y);
 
-                        if (y > pathPart2.getY() + pathPart2.getHeight() / 2) {
-                            Gdx.app.log("path3", "y greater than!!");
-                            y = pathPart2.getY() + pathPart2.getHeight();
-                        } else if (y < pathPart3.getY() + pathPart4.getHeight() / 2) {
-                            Gdx.app.log("path3", "y less than!!");
-                            y = pathPart3.getY();
-                        } else if (x < pathPart3.getX() + pathPart3.getWidth() / 2) {
-                            Gdx.app.log("path3", "x less than overlaps object");
+                            if (toBuild.getDefenseBounds().overlaps(screenGrid[r][c].getCellBounds())){
 
-                            //corner exception
-                            if (toBuild.getDefenseBounds().overlaps(pathPart2)) {
-                                if (y < pathPart2.getY() + pathPart2.getHeight() / 2) {
-                                    Gdx.app.log("CORNER EXCEPTION", "y less than");
-                                    y = pathPart2.getY();
-                                } else if (y > pathPart2.getY() + pathPart2.getHeight() / 2) {
-                                    Gdx.app.log("CORNER EXCEPTION", "y greater than");
-                                    y = pathPart2.getY() + pathPart2.getHeight();
+                                //if it's a path cell or there's already a tower placed -- don't allow placement
+                                if (screenGrid[r][c].isCellOccupied()){
+                                    Gdx.app.log("cell is " , "occupied!!!!!");
+                                    toBuild.setSprite("DefenseInvalid.png");
                                 }
-                            } else if (toBuild.getDefenseBounds().overlaps(pathPart4)) {
-                                if (y < pathPart4.getY() + pathPart4.getHeight() / 2) {
-                                    Gdx.app.log("CORNER EXCEPTION", "y less than");
-                                    y = pathPart4.getY();
-                                } else if (y > pathPart4.getY() + pathPart4.getHeight() / 2) {
-                                    Gdx.app.log("CORNER EXCEPTION", "y greater than");
-                                    y = pathPart4.getY() + pathPart4.getHeight();
-                                }
-                            }
-                            x = pathPart3.getX();
-                        } else if (x > pathPart3.getX() + pathPart3.getWidth() / 2) {
-                            Gdx.app.log("path3", "x greater than overlaps object");
-                            x = pathPart3.getX() + pathPart3.getWidth();
-                        }
-                    }
 
-                    if (toBuild.getDefenseBounds().overlaps(pathPart4)) {
-                        Gdx.app.log("path4", "overlaps object");
-                        Gdx.app.log("Y pos ", " = " + y);
-
-                        if (y < pathPart4.getY() + pathPart4.getHeight() / 2) {
-                            Gdx.app.log("path4", "y less than overlaps object");
-                            Gdx.app.log("overlap position: ", " x = " + x + " y = " + y);
-                            y = pathPart4.getY();
-                        } else if (y > pathPart4.getY() + pathPart4.getHeight() / 2) {
-                            Gdx.app.log("path4", "y greater than overlaps object");
-                            Gdx.app.log("overlap position: ", " x = " + x + " y = " + y);
-                            y = pathPart4.getY() + pathPart4.getHeight();
-                        }
-                    }
-
-                    if (toBuild.getDefenseBounds().overlaps(pathPart5)) {
-                        Gdx.app.log("path5", "overlaps object");
-                        Gdx.app.log("Y pos ", " = " + y);
-                        if (x < pathPart5.getX() + pathPart5.getWidth() / 2) {
-                            Gdx.app.log("path5", "x less than overlaps object");
-                            x = pathPart5.getX();
-                        } else if (x > pathPart5.getX() + pathPart5.getWidth() / 2) {
-                            Gdx.app.log("path5", "x greater than overlaps object");
-
-                            //corner
-                            if (toBuild.getDefenseBounds().overlaps(pathPart4)) {
-                                if (y < pathPart4.getY() + pathPart4.getHeight() / 2) {
-                                    Gdx.app.log("CORNER EXCEPTION", "y less than");
-                                    y = pathPart4.getY();
-                                } else if (y > pathPart4.getY() + pathPart4.getHeight() / 2) {
-                                    Gdx.app.log("CORNER EXCEPTION", "y greater than");
-                                    y = pathPart4.getY() + pathPart4.getHeight();
-                                }
-                            }
-                            x = pathPart5.getX() + pathPart5.getWidth();
-                        }
-                    }
-
-                    if (x - 50 < 0) {
-                        x = 40;
-                    }
-                    if (x + 50 > Gdx.graphics.getWidth()) {
-                        x = Gdx.graphics.getWidth() - 40;
-                    }
-                    if (y - 50 < 240) {
-                        y = 300;
-                    }
-                    if (y + 50 > Gdx.graphics.getHeight()) {
-                        y = Gdx.graphics.getHeight() - 40;
-                    }
-
-
-                    for (Defense defense : defenseList) {
-                        if (defense.getDefenseBounds().overlaps(toBuild.getDefenseBounds())) {
-                            if (x - 50 < defense.getSprite().getWidth() / 2 + defense.getSprite().getX()) {
-                                x = defense.getSprite().getX() - 50;
-                            } else if (x + 50 > defense.getSprite().getWidth() / 2 + defense.getSprite().getX()) {
-                                x = defense.getSprite().getX() - 80;
-                            } else if (y - 50 < defense.getSprite().getHeight() / 2 + defense.getSprite().getY()) {
-                                y = defense.getSprite().getY() - 50;
-                            } else if (y + 50 > defense.getSprite().getHeight() / 2 + defense.getSprite().getY()) {
-                                y = defense.getSprite().getY() - 80;
+                                x = screenGrid[r][c].getCellBounds().getX() +  (Gdx.graphics.getWidth() / 16) / 2;
+                                y = screenGrid[r][c].getCellBounds().getY() + (Gdx.graphics.getHeight() / 9) / 2;
+                                toBuild.getDefenseBounds().setPosition(x, y);
+                                Gdx.app.log("screengrid x:" + r + " y: " + c, "collided");
                             }
                         }
-
-
                     }
+
+//                    CheckPathConflict(x, y);
+//
+//                    //set the values as they've changed
+//                    x = currentX;
+//                    y = currentY;
+//
+//                    //chcek screen conflict
+//                    CheckScreenConflict(x,y);
+//
+//                    //set the values as they've changed
+//                    x = currentX;
+//                    y = currentY;
+//
+//                    //check defense conflict
+//                    CheckDefenseConflict(x,y);
+//
+//                    //set the values as they've changed
+//                    x = currentX;
+//                    y = currentY;
+
+
                     toBuild.getSprite().setPosition(x - 50, y - 50);
-                    toBuild.getDefenseBounds().setPosition(x - 50, y - 50);
                 }
+                toBuild.getDefenseBounds().setPosition(x, y);
 
+                //Gdx.app.log("drag ", "finished");
+                //Gdx.app.log("toBuild drag", "finished with x: " + x + " finished with in y: " + y);
             }
 
             public void dragStop(InputEvent event, float x, float y, int pointer) {
@@ -868,6 +794,258 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
         Gdx.input.setInputProcessor(mainStage);
 
+    }
+
+    /**
+     * Checks the toBuild objects position and determines
+     * moves it if it conflicts with another defense or
+     * enemy walking path.
+     * @param x
+     * @param y
+     */
+    public void CheckPathConflict(float x, float y){
+        if(toBuild.getDefenseBounds().overlaps(pathPart1)){
+            Gdx.app.log("path1", "overlaps object");
+            Gdx.app.log("Y pos ", " = "+ y);
+            Gdx.app.log("PATh1 Y pos ", " = "+ pathPart1.getY());
+
+            //y will never be greater than (off the screen)
+            //so just test for less than
+            if (x < pathPart1.getX() + pathPart1.getWidth()/2 && y > pathPart1.getY() + 1){
+
+                Gdx.app.log("path1", "x less than overlaps object");
+                x = pathPart1.getX();
+                toBuild.getDefenseBounds().setPosition(x, y);
+            } else if (x > pathPart1.getX() + pathPart1.getWidth()/2 && y > pathPart1.getY() + 1){
+                Gdx.app.log("path1", "x greater than overlaps object");
+                x = pathPart1.getX() + pathPart1.getWidth();
+                toBuild.getDefenseBounds().setPosition(x, y);
+
+                //does this now create an overlap?
+                if (toBuild.getDefenseBounds().overlaps(pathPart2)){
+                    if (y > pathPart2.getY()+ pathPart2.getHeight() / 2) {
+                        Gdx.app.log("p1 overlap 2 AFTER CHANGE", "y greater than part2 object");
+                        y = pathPart2.getY() + pathPart2.getHeight();
+                        toBuild.getDefenseBounds().setPosition(x, y);
+                    } else if (y < pathPart2.getY()+ pathPart2.getHeight() / 2){
+                        Gdx.app.log("p1 overlap 2 AFTER CHANGE", "y less than than part2 object");
+                        y = pathPart2.getY();
+                        toBuild.getDefenseBounds().setPosition(x, y);
+                    }
+                }
+                // if it's first overlap is on the bottom
+            } else if (y > pathPart1.getY()){
+                Gdx.app.log("path1", "y less than!!");
+                y = pathPart1.getY();
+                toBuild.getDefenseBounds().setPosition(x, y);
+            }
+        }
+
+        else if(toBuild.getDefenseBounds().overlaps(pathPart2)) {
+            if (y < pathPart2.getY() + pathPart2.getHeight() / 2) {
+                Gdx.app.log("path2", "y less than overlaps object");
+                y = pathPart2.getY();
+                toBuild.getDefenseBounds().setPosition(x, y);
+            } else if (y > pathPart2.getY() + pathPart2.getHeight() / 2) {
+                Gdx.app.log("path2", "y greater than overlaps object");
+                y = pathPart2.getY() + pathPart2.getHeight();
+                toBuild.getDefenseBounds().setPosition(x, y);
+            }
+        }
+
+        if (toBuild.getDefenseBounds().overlaps(pathPart3)) {
+            Gdx.app.log("path3", "overlaps object");
+            Gdx.app.log("Y pos ", " = " + y);
+
+            if (y > pathPart3.getY() + pathPart3.getHeight()) {
+                Gdx.app.log("path3", "y greater than!!");
+                y = pathPart3.getY() + pathPart3.getHeight();
+                toBuild.getDefenseBounds().setPosition(x, y);
+            } else if (y < pathPart3.getY()) {
+                Gdx.app.log("path3", "y less than!!");
+                y = pathPart3.getY();
+                toBuild.getDefenseBounds().setPosition(x, y);
+            } else if (x < pathPart3.getX() + pathPart3.getWidth() / 2) {
+                Gdx.app.log("path3", "x less than overlaps object");
+
+                x = pathPart3.getX();
+                toBuild.getDefenseBounds().setPosition(x, y);
+
+                //does this now create an overlap?
+                //path 2 overlap
+                if (toBuild.getDefenseBounds().overlaps(pathPart2)) {
+                    if (y < pathPart2.getY() + pathPart2.getHeight() / 2) {
+                        Gdx.app.log("CORNER EXCEPTION", "y less than");
+                        y = pathPart2.getY();
+                        toBuild.getDefenseBounds().setPosition(x, y);
+                    } else if (y > pathPart2.getY() + pathPart2.getHeight() / 2) {
+                        Gdx.app.log("CORNER EXCEPTION", "y greater than");
+                        y = pathPart2.getY() + pathPart2.getHeight();
+                        toBuild.getDefenseBounds().setPosition(x, y);
+                    }
+
+                    //path 4 overlap
+                } else if (toBuild.getDefenseBounds().overlaps(pathPart4)){
+                    if (y < pathPart4.getY() + pathPart4.getHeight() / 2) {
+                        Gdx.app.log("CORNER EXCEPTION", "y less than");
+                        y = pathPart4.getY();
+                        toBuild.getDefenseBounds().setPosition(x, y);
+                    } else if (y > pathPart4.getY() + pathPart4.getHeight() / 2) {
+                        Gdx.app.log("CORNER EXCEPTION", "y greater than");
+                        y = pathPart4.getY() + pathPart4.getHeight();
+                        toBuild.getDefenseBounds().setPosition(x, y);
+                    }
+                }
+
+            } else if (x > pathPart3.getX() + pathPart3.getWidth() / 2) {
+                Gdx.app.log("path3", "x greater than overlaps object");
+                x = pathPart3.getX() + pathPart3.getWidth();
+                toBuild.getDefenseBounds().setPosition(x, y);
+            }
+        }
+
+        if (toBuild.getDefenseBounds().overlaps(pathPart4)) {
+            Gdx.app.log("path4", "overlaps object");
+            Gdx.app.log("Y pos ", " = " + y);
+
+            if (y < pathPart4.getY() + pathPart4.getHeight() / 2) {
+                Gdx.app.log("path4", "y less than overlaps object");
+                //Gdx.app.log("overlap position: ", " x = " + x + " y = " + y);
+                y = pathPart4.getY();
+                toBuild.getDefenseBounds().setPosition(x, y);
+            } else if (y > pathPart4.getY() + pathPart4.getHeight() / 2) {
+                Gdx.app.log("path4", "y greater than overlaps object");
+                //Gdx.app.log("overlap position: ", " x = " + x + " y = " + y);
+                y = pathPart4.getY() + pathPart4.getHeight();
+                toBuild.getDefenseBounds().setPosition(x, y);
+            }
+        }
+
+        if(toBuild.getDefenseBounds().overlaps(pathPart5)){
+            Gdx.app.log("path5", "overlaps object");
+            Gdx.app.log("Y pos ", " = "+ y);
+
+            if (y > pathPart5.getY() + pathPart5.getHeight() / 2) {
+                Gdx.app.log("path5", "y greater than!!");
+                y = pathPart5.getY() + pathPart5.getHeight();
+                toBuild.getDefenseBounds().setPosition(x, y);
+            } else if (y < pathPart5.getY()) {
+                Gdx.app.log("path5", "y less than!!");
+                y = pathPart5.getY();
+                toBuild.getDefenseBounds().setPosition(x, y);
+
+            } else if (x < pathPart5.getX() + pathPart5.getWidth()/2){
+
+                Gdx.app.log("path5", "x less than overlaps object");
+                x = pathPart5.getX();
+                toBuild.getDefenseBounds().setPosition(x, y);
+            } else if (x > pathPart5.getX() + pathPart5.getWidth()/2){
+                Gdx.app.log("path5", "x greater than overlaps object");
+                x = pathPart5.getX() + pathPart5.getWidth();
+                toBuild.getDefenseBounds().setPosition(x, y);
+
+                //does this now create an overlap?
+                if (toBuild.getDefenseBounds().overlaps(pathPart4)){
+                    if (y > pathPart4.getY()+ pathPart4.getHeight() / 2) {
+                        Gdx.app.log("p5 overlap 4 AFTER CHANGE", "y greater than part4 object");
+                        y = pathPart4.getY() + pathPart4.getHeight();
+                        toBuild.getDefenseBounds().setPosition(x, y);
+                    } else if (y < pathPart4.getY()+ pathPart4.getHeight() / 2){
+                        Gdx.app.log("p5 overlap 4 AFTER CHANGE", "y less than than part4 object");
+                        y = pathPart4.getY();
+                        toBuild.getDefenseBounds().setPosition(x, y);
+                    }
+                }
+            }
+        }
+
+        currentX = x;
+        currentY = y;
+
+        //positions[0] = x;
+        //positions[1] = y;
+        //return positions;
+
+    }
+
+    public void CheckDefenseConflict(float x, float y){
+
+        for (Defense defense : defenseList) {
+            if (defense.getDefenseBounds().overlaps(toBuild.getDefenseBounds())) {
+                if (x - 50 < defense.getSprite().getWidth() / 2 + defense.getSprite().getX()) {
+                    x = defense.getSprite().getX() - 50;
+                } else if (x + 50 > defense.getSprite().getWidth() / 2 + defense.getSprite().getX()) {
+                    x = defense.getSprite().getX() - 80;
+                } else if (y - 50 < defense.getSprite().getHeight() / 2 + defense.getSprite().getY()) {
+                    y = defense.getSprite().getY() - 50;
+                } else if (y + 50 > defense.getSprite().getHeight() / 2 + defense.getSprite().getY()) {
+                    y = defense.getSprite().getY() - 80;
+                }
+            }
+        }
+
+        currentX = x;
+        currentY = y;
+    }
+
+    public void CheckScreenConflict(float x, float y){
+
+        if (x - 50 < 0) {
+            x = 40;
+        }
+        if (x + 50 > Gdx.graphics.getWidth()) {
+            x = Gdx.graphics.getWidth() - 40;
+        }
+        if (y - 50 < 240) {
+            y = 300;
+        }
+        if (y + 50 > Gdx.graphics.getHeight()) {
+            y = Gdx.graphics.getHeight() - 40;
+        }
+
+        currentX = x;
+        currentY = y;
+    }
+
+    public void CreateScreenGrid(){
+
+        screenGrid = new Cell[15][10];
+
+        //screenGrid[0][0] = new Rectangle(0f , Gdx.graphics.getHeight() - 120f,  Gdx.graphics.getWidth() / 16,  Gdx.graphics.getHeight() / 9);
+        for (int x = 0; x < 15; x++){
+            for (int y = 0; y < 10; y++){
+
+                //int
+                Rectangle temp;
+
+                Gdx.app.log("creating grid position: ", "x: " + x + " y: " + y);
+                Gdx.app.log("x pos: ", x * (Gdx.graphics.getWidth() / 17) + "" );
+                Gdx.app.log("y pos: ", (y * (Gdx.graphics.getHeight() / 13) + 240) + "" );
+                Gdx.app.log("width: ", Gdx.graphics.getWidth() / 17 + "");
+                Gdx.app.log("height: ", Gdx.graphics.getHeight() / 13 + "");
+                temp = new Rectangle(x * (Gdx.graphics.getWidth() / 17) , (y * (Gdx.graphics.getHeight() / 13) + 240),  Gdx.graphics.getWidth() / 17,  Gdx.graphics.getHeight() / 13);
+
+                //check if it's a cell on the path
+                boolean pathCell = false;
+
+                if (x == 3 && y >= 7 && y <= 9){
+                    pathCell = true;
+                } else if (y == 6 && x >= 3 && x <= 13){
+                    pathCell = true;
+                } else if (x == 13 && y >= 3 && y <= 5){
+                    pathCell = true;
+                } else if (y == 2 && x >= 8 && x <= 13){
+                    pathCell = true;
+                } else if (x == 8 && y >= 0 && y <= 1){
+                    pathCell = true;
+                }
+                Gdx.app.log("cellOccupied : ", pathCell + "");
+                Cell theCell = new Cell(x, y, pathCell, temp);
+
+                screenGrid[x][y] = theCell;
+
+            }
+        }
     }
 
     public void CreateButtons(){
