@@ -224,7 +224,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
     Sprite Test5;
 
     private Cell[][] screenGrid;
-
+    private int[][] occupiedCellsSave;
 
     // constructor to keep a reference to the main Game class
     public GameScreen(TowerDefense game){
@@ -268,7 +268,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         Gdx.app.log("In GameScreen", "--- Reset Prefs");
         game.prefs.putInteger("coinsValue", 20);
         game.prefs.putInteger("waveValue", 0);
-        game.prefs.putInteger("meatValue", 400);
+        game.prefs.putInteger("meatValue", 4000);
         game.prefs.flush();
 
 
@@ -286,12 +286,14 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 //            currentSave = new SaveData();
 //        }
         Save.sd.setDefenses(defenseList);
+        Save.sd.setScreenGrid(screenGrid);
         Save.save();
     }
 
     void LoadDefenses(){
         Save.load();
         defenseList = Save.sd.getDefenseList();
+        occupiedCellsSave = Save.sd.getScreenGrid();
         RefreshDefensesFromLoad();
         //currentSave.toString();
     }
@@ -301,6 +303,17 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         for (Defense d : defenseList ){
             d.setRangeRadious(new Circle(d.getSprite().getX() + 50,
                     d.getSprite().getY() + 50, d.getRange()));
+        }
+
+        //set which cells were occupied pre-save
+        for (int r = 0; r < 15; r++){
+            for (int c = 0; c < 10; c++){
+                if (occupiedCellsSave[r][c] == 1){
+                    screenGrid[r][c].setCellOccupied(true);
+                } else {
+                    screenGrid[r][c].setCellOccupied(false);
+                }
+            }
         }
 
     }
@@ -369,8 +382,9 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         currentTime = System.currentTimeMillis();
         movementCD = 0.0f;
 
+
         //load from gamestate instead
-        LoadGameState();
+        //LoadGameState();
 
         enemiesSpawned = 1;
         enemiesRemaining = 0;
@@ -387,9 +401,6 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         pathPart3 = new Rectangle();
         pathPart4 = new Rectangle();
         pathPart5 = new Rectangle();
-
-        //create grid
-        CreateScreenGrid();
 
         //draws a circle around new defenses to show range
         shapeRenderer = new ShapeRenderer();
@@ -585,10 +596,9 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                             }
                         }
                     }
-
+                    toBuild.getDefenseBounds().setPosition(x, y);
+                    toBuild.getSprite().setPosition(x - 50, y - 50);
                 }
-                toBuild.getDefenseBounds().setPosition(x, y);
-                toBuild.getSprite().setPosition(x - 50, y - 50);
             }
 
             public void dragStop(InputEvent event, float x, float y, int pointer) {
@@ -1854,6 +1864,8 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
         Gdx.app.log("GameScreen: ", "show called ");
         if(playing == false){
+            //create grid -- Must happen before LoadGameState!
+            CreateScreenGrid();
             LoadGameState();
             create();
         }

@@ -21,6 +21,7 @@ public class SaveData implements Serializable {
     public Rectangle[] listOfDefBounds;
     public float[] spriteXPos;
     public float[] spriteYPos;
+    public int[][] gridOccupiedCells;
 
     //public List<int[][]> spritePos;
 
@@ -87,6 +88,53 @@ public class SaveData implements Serializable {
         }
 
         //this.defenses = list;
+    }
+
+    /**
+     * Rememberes which cells in the screenGrid are occupied
+     * @param theGrid
+     */
+    public void setScreenGrid(Cell[][] theGrid){
+
+        //screenGrid = new Cell[theGrid[0].length][theGrid[1].length];
+        //screenGrid = new Cell[15][10];
+        gridOccupiedCells = new int[15][10];
+
+        for (int r = 0; r < 15; r++){
+            for (int c = 0; c < 10; c++){
+                //screenGrid[r][c] = theGrid[r][c];
+
+                //if the cell is occupied (true) set to 1
+                if (theGrid[r][c].isCellOccupied()){
+                    gridOccupiedCells[r][c] = 1;
+                } else {
+                    gridOccupiedCells[r][c] = 0;
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Determines from gridOccupiedCells which cells were occupied
+     * in the save. Returns a
+     * @return
+     */
+    public int[][] getScreenGrid(){
+
+        //int[][] newOccupiedCells = new int[15][10];
+
+//        for (int r = 0; r < 15; r++){
+//            for (int c = 0; c < 10; c++){
+//                if (gridOccupiedCells[r][c] == 1){
+//                    newOccupiedCells[r][c].setCellOccupied(true);
+//                } else {
+//                    newOccupiedCells[r][c].setCellOccupied(false);
+//                }
+//            }
+//        }
+
+        return gridOccupiedCells;
     }
 
     public void init(){
