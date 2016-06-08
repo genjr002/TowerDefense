@@ -37,7 +37,7 @@ public class Defense extends Actor{
     private String description;
     private int numUpgrades;
     private Sprite portrait;
-
+    private boolean changedSprite; //has this defenses sprite been changed from invalid placement?
 
     private Sprite sprite;
     private Sprite rangeSprite;
@@ -230,5 +230,13 @@ public class Defense extends Actor{
 
     public void setPortrait(Sprite portrait) {
         this.portrait = portrait;
+    }
+
+    public boolean isChangedSprite() {
+        return changedSprite;
+    }
+
+    public void setChangedSprite(boolean changedSprite) {
+        this.changedSprite = changedSprite;
     }
 }

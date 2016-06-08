@@ -533,205 +533,162 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                 if (toBuild != null) {
                     toBuild.getDefenseBounds().setPosition(x, y);
 
+                    CheckScreenConflict(x, y);
+                    if (x != currentX || y != currentY ){
+                        Gdx.app.log("Screen conflict" , " detected!!!!");
+                        x = currentX;
+                        y = currentY;
+                        toBuild.getSprite().setPosition(x - 50, y - 50);
+                        toBuild.getDefenseBounds().setPosition(x, y);
+                    }
 
+                    //loop through all the grid locations
                     for (int r = 0; r < 15; r++){
                         for (int c = 0; c < 10; c++){
-                            //Gdx.app.log("testing", "screengrid" + "[" + r + "]"+ "[" + c + "]");
-
-
-
+                            //check if we have an overlap with the current grid slot
                             if (toBuild.getDefenseBounds().overlaps(screenGrid[r][c].getCellBounds())){
 
                                 //if it's a path cell or there's already a tower placed -- don't allow placement
                                 if (screenGrid[r][c].isCellOccupied()){
                                     Gdx.app.log("cell is " , "occupied!!!!!");
                                     toBuild.setSprite("DefenseInvalid.png");
+                                    toBuild.setChangedSprite(true);
+                                } else if (toBuild.isChangedSprite()){
+                                    Gdx.app.log("cell is ", "empty!!");
+
+                                    //set the tower back to it's normal sprite
+                                    int defenseType = toBuild.getType();
+
+                                    switch (defenseType){
+
+                                        case 0:
+                                            toBuild.setSprite("DefenseBasic.png");
+                                            break;
+                                        case 1:
+                                            toBuild.setSprite("DefenseShortRange.png");
+                                            break;
+                                        case 2:
+                                            toBuild.setSprite("DefenseBuff.png");
+                                            break;
+                                        case 3:
+                                            toBuild.setSprite("DefenseLongRange.png");
+                                            break;
+                                    }
+                                    toBuild.setChangedSprite(false);
                                 }
 
                                 x = screenGrid[r][c].getCellBounds().getX() +  (Gdx.graphics.getWidth() / 16) / 2;
                                 y = screenGrid[r][c].getCellBounds().getY() + (Gdx.graphics.getHeight() / 9) / 2;
                                 toBuild.getDefenseBounds().setPosition(x, y);
+                                toBuild.getSprite().setPosition(x - 50, y - 50);
                                 Gdx.app.log("screengrid x:" + r + " y: " + c, "collided");
                             }
                         }
                     }
 
-//                    CheckPathConflict(x, y);
-//
-//                    //set the values as they've changed
-//                    x = currentX;
-//                    y = currentY;
-//
-//                    //chcek screen conflict
-//                    CheckScreenConflict(x,y);
-//
-//                    //set the values as they've changed
-//                    x = currentX;
-//                    y = currentY;
-//
-//                    //check defense conflict
-//                    CheckDefenseConflict(x,y);
-//
-//                    //set the values as they've changed
-//                    x = currentX;
-//                    y = currentY;
-
-
-                    toBuild.getSprite().setPosition(x - 50, y - 50);
                 }
                 toBuild.getDefenseBounds().setPosition(x, y);
-
-                //Gdx.app.log("drag ", "finished");
-                //Gdx.app.log("toBuild drag", "finished with x: " + x + " finished with in y: " + y);
+                toBuild.getSprite().setPosition(x - 50, y - 50);
             }
 
             public void dragStop(InputEvent event, float x, float y, int pointer) {
 
                 if (toBuild != null) {
-                    buildPlacement.play();
-                    if (toBuild.getDefenseBounds().overlaps(pathPart1)) {
-                        Gdx.app.log("path1", "overlaps object");
-                        Gdx.app.log("Y pos ", " = " + y);
-                        if (y < pathPart1.getY() + pathPart2.getHeight() / 2) {
-                            Gdx.app.log("path1", "y less than!!");
-                            y = pathPart1.getY();
-                        } else if (x < pathPart1.getX() + pathPart1.getWidth() / 2) {
-                            Gdx.app.log("path1", "x less than overlaps object");
-                            x = pathPart1.getX();
-                        } else if (x > pathPart1.getX() + pathPart1.getWidth() / 2) {
-                            Gdx.app.log("path1", "x greater than overlaps object");
-                            x = pathPart1.getX() + pathPart1.getWidth();
-                        }
+
+                    //keep a record of what cell the tower was placed in
+                    int cellNoX = 0;
+                    int cellNoY = 0;
+
+                    toBuild.getDefenseBounds().setPosition(x, y);
+
+                    //CHECK SCREEN CONFLICT FIRST
+                    CheckScreenConflict(x, y);
+                    if (x != currentX || y != currentY ) {
+                        Gdx.app.log("Screen conflict", " detected!!!!");
+                        x = currentX;
+                        y = currentY;
+                        toBuild.getSprite().setPosition(x - 50, y - 50);
+                        toBuild.getDefenseBounds().setPosition(x, y);
                     }
 
-                    if (toBuild.getDefenseBounds().overlaps(pathPart2)) {
-                        if (y < pathPart2.getY() + pathPart2.getHeight() / 2) {
-                            Gdx.app.log("path2", "y less than overlaps object");
-                            Gdx.app.log("overlap position: ", " x = " + x + " y = " + y);
-                            y = pathPart2.getY();
-                        } else if (y > pathPart2.getY() + pathPart2.getHeight() / 2) {
-                            Gdx.app.log("path2", "y greater than overlaps object");
-                            Gdx.app.log("overlap position: ", " x = " + x + " y = " + y);
-                            y = pathPart2.getY() + pathPart2.getHeight();
-                        }
-                    }
+                    //loop through all the grid locations
+                    for (int r = 0; r < 15; r++){
+                        for (int c = 0; c < 10; c++){
+                            //check if we have an overlap with the current grid slot
 
-                    if (toBuild.getDefenseBounds().overlaps(pathPart3)) {
-                        Gdx.app.log("path3", "overlaps object");
-                        Gdx.app.log("Y pos ", " = " + y);
+                            if (toBuild != null){
 
-                        if (y > pathPart2.getY() + pathPart2.getHeight() / 2) {
-                            Gdx.app.log("path3", "y greater than!!");
-                            y = pathPart2.getY() + pathPart2.getHeight();
-                        } else if (y < pathPart3.getY() + pathPart4.getHeight() / 2) {
-                            Gdx.app.log("path3", "y less than!!");
-                            y = pathPart3.getY();
-                        } else if (x < pathPart3.getX() + pathPart3.getWidth() / 2) {
-                            Gdx.app.log("path3", "x less than overlaps object");
+                                if (toBuild.getDefenseBounds().overlaps(screenGrid[r][c].getCellBounds())){
 
-                            //corner exception
-                            if (toBuild.getDefenseBounds().overlaps(pathPart2)) {
-                                if (y < pathPart2.getY() + pathPart2.getHeight() / 2) {
-                                    Gdx.app.log("CORNER EXCEPTION", "y less than");
-                                    y = pathPart2.getY();
-                                } else if (y > pathPart2.getY() + pathPart2.getHeight() / 2) {
-                                    Gdx.app.log("CORNER EXCEPTION", "y greater than");
-                                    y = pathPart2.getY() + pathPart2.getHeight();
-                                }
-                            } else if (toBuild.getDefenseBounds().overlaps(pathPart4)) {
-                                if (y < pathPart4.getY() + pathPart4.getHeight() / 2) {
-                                    Gdx.app.log("CORNER EXCEPTION", "y less than");
-                                    y = pathPart4.getY();
-                                } else if (y > pathPart4.getY() + pathPart4.getHeight() / 2) {
-                                    Gdx.app.log("CORNER EXCEPTION", "y greater than");
-                                    y = pathPart4.getY() + pathPart4.getHeight();
-                                }
-                            }
-                            x = pathPart3.getX();
-                        } else if (x > pathPart3.getX() + pathPart3.getWidth() / 2) {
-                            Gdx.app.log("path3", "x greater than overlaps object");
-                            x = pathPart3.getX() + pathPart3.getWidth();
-                        }
-                    }
+                                    //if it's a path cell or there's already a tower placed -- don't allow placement
+                                    if (screenGrid[r][c].isCellOccupied()){
+                                        Gdx.app.log("cell is ", "occupied!!!!!");
+                                        //toBuild.setSprite("DefenseInvalid.png");
+                                        //cancel the building
+                                        dragging = false;
+                                        toBuild = null;
+                                        building = false;
 
-                    if (toBuild.getDefenseBounds().overlaps(pathPart4)) {
-                        Gdx.app.log("path4", "overlaps object");
-                        Gdx.app.log("Y pos ", " = " + y);
+                                    } else {
 
-                        if (y < pathPart4.getY() + pathPart4.getHeight() / 2) {
-                            Gdx.app.log("path4", "y less than overlaps object");
-                            Gdx.app.log("overlap position: ", " x = " + x + " y = " + y);
-                            y = pathPart4.getY();
-                        } else if (y > pathPart4.getY() + pathPart4.getHeight() / 2) {
-                            Gdx.app.log("path4", "y greater than overlaps object");
-                            Gdx.app.log("overlap position: ", " x = " + x + " y = " + y);
-                            y = pathPart4.getY() + pathPart4.getHeight();
-                        }
-                    }
+                                        if (toBuild.isChangedSprite()){
+                                            Gdx.app.log("cell is " , "empty!!");
+                                            //set the tower back to it's normal sprite
+                                            int defenseType = toBuild.getType();
 
-                    if (toBuild.getDefenseBounds().overlaps(pathPart5)) {
-                        Gdx.app.log("path5", "overlaps object");
-                        Gdx.app.log("Y pos ", " = " + y);
-                        if (x < pathPart5.getX() + pathPart5.getWidth() / 2) {
-                            Gdx.app.log("path5", "x less than overlaps object");
-                            x = pathPart5.getX();
-                        } else if (x > pathPart5.getX() + pathPart5.getWidth() / 2) {
-                            Gdx.app.log("path5", "x greater than overlaps object");
+                                            switch (defenseType){
 
-                            //corner
-                            if (toBuild.getDefenseBounds().overlaps(pathPart4)) {
-                                if (y < pathPart4.getY() + pathPart4.getHeight() / 2) {
-                                    Gdx.app.log("CORNER EXCEPTION", "y less than");
-                                    y = pathPart4.getY();
-                                } else if (y > pathPart4.getY() + pathPart4.getHeight() / 2) {
-                                    Gdx.app.log("CORNER EXCEPTION", "y greater than");
-                                    y = pathPart4.getY() + pathPart4.getHeight();
+                                                case 0:
+                                                    toBuild.setSprite("DefenseBasic.png");
+                                                    break;
+                                                case 1:
+                                                    toBuild.setSprite("DefenseShortRange.png");
+                                                    break;
+                                                case 2:
+                                                    toBuild.setSprite("DefenseBuff.png");
+                                                    break;
+                                                case 3:
+                                                    toBuild.setSprite("DefenseLongRange.png");
+                                                    break;
+                                            }
+                                            toBuild.setChangedSprite(false);
+                                        }
+                                        x = screenGrid[r][c].getCellBounds().getX() +  (Gdx.graphics.getWidth() / 16) / 2;
+                                        y = screenGrid[r][c].getCellBounds().getY() + (Gdx.graphics.getHeight() / 9) / 2;
+                                        toBuild.getDefenseBounds().setPosition(x, y);
+                                        toBuild.getSprite().setPosition(x - 50, y - 50);
+                                        Gdx.app.log("screengrid x:" + r + " y: " + c, "collided");
+                                        //record the cell the tower was placed in
+                                        cellNoX = r;
+                                        cellNoY = c;
+                                    }
                                 }
                             }
-                            x = pathPart5.getX() + pathPart5.getWidth();
                         }
                     }
 
-                    if (x - 50 < 0) {
-                        x = 40;
-                    }
-                    if (x + 50 > Gdx.graphics.getWidth()) {
-                        x = Gdx.graphics.getWidth() - 40;
-                    }
-                    if (y - 50 < 240) {
-                        y = 300;
-                    }
-                    if (y + 50 > Gdx.graphics.getHeight()) {
-                        y = Gdx.graphics.getHeight() - 40;
-                    }
-                    for (Defense defense : defenseList) {
-                        if (defense.getDefenseBounds().overlaps(toBuild.getDefenseBounds())) {
-                            if (x - 50 < defense.getSprite().getWidth() / 2 + defense.getSprite().getX()) {
-                                x = defense.getSprite().getX() - 50;
-                            } else if (x + 50 > defense.getSprite().getWidth() / 2 + defense.getSprite().getX()) {
-                                x = defense.getSprite().getX() - 80;
-                            } else if (y - 50 < defense.getSprite().getHeight() / 2 + defense.getSprite().getY()) {
-                                y = defense.getSprite().getY() - 50;
-                            } else if (y + 50 > defense.getSprite().getHeight() / 2 + defense.getSprite().getY()) {
-                                y = defense.getSprite().getY() - 80;
-                            }
-                        }
-                    }
+                    //check if toBuild was cancelled from incorrect
+                    //placement
+                    if (toBuild != null){
 
-                    toBuild.getSprite().setPosition(x - 50, y - 50);
-                    toBuild.setDefenseBounds(new Rectangle(x - 50, y - 50, 100, 100));
+                        toBuild.getDefenseBounds().setPosition(x, y);
+                        toBuild.getSprite().setPosition(x - 50, y - 50);
+                        toBuild.setDefenseBounds(new Rectangle(x - 50, y - 50, 100, 100));
 
-                    meat -= toBuild.getCost();
-                    toBuild.setRangeRadious(new Circle(toBuild.getSprite().getX() + 50,
-                            toBuild.getSprite().getY() + 50, toBuild.getRange()));
+                        meat -= toBuild.getCost();
+                        toBuild.setRangeRadious(new Circle(toBuild.getSprite().getX() + 50,
+                                toBuild.getSprite().getY() + 50, toBuild.getRange()));
 
-                    mainStage.addActor(toBuild);
-                    defenseList.add(toBuild);
+                        mainStage.addActor(toBuild);
+                        defenseList.add(toBuild);
 
-                    dragging = false;
-                    toBuild = null;
-                    building = false;
+                        dragging = false;
+                        toBuild = null;
+                        building = false;
+                        buildPlacement.play();
+                        screenGrid[cellNoX][cellNoY].setCellOccupied(true);
 
+                    }
                 }
             }
         });
