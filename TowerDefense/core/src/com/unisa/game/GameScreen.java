@@ -77,7 +77,6 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
     int waveCount;
     int meat;
     int enemiesSpawned;
-    int enemiesToSpawn;
 
     public enum State
     {
@@ -150,9 +149,6 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
     private TextureRegion texture;
     private Sprite dragonSpr;
-    private Sprite dragonsBreath;
-    private Sprite dragonsRoar;
-    private Sprite dStomp;
     private Sprite portraitSpr;
     private Image background;
     private Image UIBackAbility1;
@@ -272,7 +268,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         Gdx.app.log("In GameScreen", "--- Reset Prefs");
         game.prefs.putInteger("coinsValue", 20);
         game.prefs.putInteger("waveValue", 0);
-        game.prefs.putInteger("meatValue", 400);
+        game.prefs.putInteger("meatValue", 4000);
         game.prefs.flush();
 
 
@@ -377,6 +373,12 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         ability4BOverlay.setPosition(Gdx.graphics.getWidth() - 225, 45);
 
 
+//        fireBreath = new ParticleEffect();
+//        fireBreath.load(Gdx.files.internal("fireBreath"),
+//                Gdx.files.internal(""));
+//        fireBreath.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+//        fireBreath.start();
+
         currentTime = System.currentTimeMillis();
         movementCD = 0.0f;
 
@@ -384,10 +386,9 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         //load from gamestate instead
         //LoadGameState();
 
-        enemiesSpawned = 0;
+        enemiesSpawned = 1;
         enemiesRemaining = 0;
         healthMod = 1;
-        enemiesToSpawn = 10;
 
         spawnTime = 0.0f;
 
@@ -532,7 +533,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         });
         background.addListener(new DragListener() {
             @Override
-            public void dragStart(InputEvent event, float x, float y, int pointer) {
+            public void dragStart(InputEvent event, float x, float y, int pointer){
                 if (toBuild != null) {
                     dragging = true;
                 }
@@ -544,8 +545,8 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     toBuild.getDefenseBounds().setPosition(x, y);
 
                     CheckScreenConflict(x, y);
-                    if (x != currentX || y != currentY) {
-                        Gdx.app.log("Screen conflict", " detected!!!!");
+                    if (x != currentX || y != currentY ){
+                        Gdx.app.log("Screen conflict" , " detected!!!!");
                         x = currentX;
                         y = currentY;
                         toBuild.getSprite().setPosition(x - 50, y - 50);
@@ -553,23 +554,23 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     }
 
                     //loop through all the grid locations
-                    for (int r = 0; r < 15; r++) {
-                        for (int c = 0; c < 10; c++) {
+                    for (int r = 0; r < 15; r++){
+                        for (int c = 0; c < 10; c++){
                             //check if we have an overlap with the current grid slot
-                            if (toBuild.getDefenseBounds().overlaps(screenGrid[r][c].getCellBounds())) {
+                            if (toBuild.getDefenseBounds().overlaps(screenGrid[r][c].getCellBounds())){
 
                                 //if it's a path cell or there's already a tower placed -- don't allow placement
-                                if (screenGrid[r][c].isCellOccupied()) {
-                                    Gdx.app.log("cell is ", "occupied!!!!!");
+                                if (screenGrid[r][c].isCellOccupied()){
+                                    Gdx.app.log("cell is " , "occupied!!!!!");
                                     toBuild.setSprite("DefenseInvalid.png");
                                     toBuild.setChangedSprite(true);
-                                } else if (toBuild.isChangedSprite()) {
+                                } else if (toBuild.isChangedSprite()){
                                     Gdx.app.log("cell is ", "empty!!");
 
                                     //set the tower back to it's normal sprite
                                     int defenseType = toBuild.getType();
 
-                                    switch (defenseType) {
+                                    switch (defenseType){
 
                                         case 0:
                                             toBuild.setSprite("DefenseBasic.png");
@@ -587,7 +588,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                                     toBuild.setChangedSprite(false);
                                 }
 
-                                x = screenGrid[r][c].getCellBounds().getX() + (Gdx.graphics.getWidth() / 16) / 2;
+                                x = screenGrid[r][c].getCellBounds().getX() +  (Gdx.graphics.getWidth() / 16) / 2;
                                 y = screenGrid[r][c].getCellBounds().getY() + (Gdx.graphics.getHeight() / 9) / 2;
                                 toBuild.getDefenseBounds().setPosition(x, y);
                                 toBuild.getSprite().setPosition(x - 50, y - 50);
@@ -612,7 +613,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
                     //CHECK SCREEN CONFLICT FIRST
                     CheckScreenConflict(x, y);
-                    if (x != currentX || y != currentY) {
+                    if (x != currentX || y != currentY ) {
                         Gdx.app.log("Screen conflict", " detected!!!!");
                         x = currentX;
                         y = currentY;
@@ -621,16 +622,16 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     }
 
                     //loop through all the grid locations
-                    for (int r = 0; r < 15; r++) {
-                        for (int c = 0; c < 10; c++) {
+                    for (int r = 0; r < 15; r++){
+                        for (int c = 0; c < 10; c++){
                             //check if we have an overlap with the current grid slot
 
-                            if (toBuild != null) {
+                            if (toBuild != null){
 
-                                if (toBuild.getDefenseBounds().overlaps(screenGrid[r][c].getCellBounds())) {
+                                if (toBuild.getDefenseBounds().overlaps(screenGrid[r][c].getCellBounds())){
 
                                     //if it's a path cell or there's already a tower placed -- don't allow placement
-                                    if (screenGrid[r][c].isCellOccupied()) {
+                                    if (screenGrid[r][c].isCellOccupied()){
                                         Gdx.app.log("cell is ", "occupied!!!!!");
                                         //toBuild.setSprite("DefenseInvalid.png");
                                         //cancel the building
@@ -640,12 +641,12 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
                                     } else {
 
-                                        if (toBuild.isChangedSprite()) {
-                                            Gdx.app.log("cell is ", "empty!!");
+                                        if (toBuild.isChangedSprite()){
+                                            Gdx.app.log("cell is " , "empty!!");
                                             //set the tower back to it's normal sprite
                                             int defenseType = toBuild.getType();
 
-                                            switch (defenseType) {
+                                            switch (defenseType){
 
                                                 case 0:
                                                     toBuild.setSprite("DefenseBasic.png");
@@ -662,7 +663,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                                             }
                                             toBuild.setChangedSprite(false);
                                         }
-                                        x = screenGrid[r][c].getCellBounds().getX() + (Gdx.graphics.getWidth() / 16) / 2;
+                                        x = screenGrid[r][c].getCellBounds().getX() +  (Gdx.graphics.getWidth() / 16) / 2;
                                         y = screenGrid[r][c].getCellBounds().getY() + (Gdx.graphics.getHeight() / 9) / 2;
                                         toBuild.getDefenseBounds().setPosition(x, y);
                                         toBuild.getSprite().setPosition(x - 50, y - 50);
@@ -678,7 +679,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
                     //check if toBuild was cancelled from incorrect
                     //placement
-                    if (toBuild != null) {
+                    if (toBuild != null){
 
                         toBuild.getDefenseBounds().setPosition(x, y);
                         toBuild.getSprite().setPosition(x - 50, y - 50);
@@ -707,28 +708,10 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
 
 
-
-
-        texture = new TextureRegion(new Texture("dragonHR.png"));
+        texture = new TextureRegion(new Texture("Dragon.png"));
         dragonSpr = new Sprite(texture);
         dragonSpr.setSize(300, 250);
         dragonSpr.setPosition(Gdx.graphics.getWidth() / 2 - dragonSpr.getWidth() / 2, 0);
-
-
-        texture = new TextureRegion(new Texture("fireBallSprite.png"));
-        dragonsBreath = new Sprite(texture);
-        dragonsBreath.setSize(80, 280);
-        dragonsBreath.setPosition(Gdx.graphics.getWidth() / 2 -40, dragonSpr.getHeight()+5);
-
-        texture = new TextureRegion(new Texture("roar.png"));
-        dragonsRoar = new Sprite(texture);
-        dragonsRoar.setSize(20, 20);
-        dragonsRoar.setPosition(Gdx.graphics.getWidth() / 2 -10, dragonSpr.getHeight()/2+10);
-
-        texture = new TextureRegion(new Texture("stomp.png"));
-        dStomp = new Sprite(texture);
-        dStomp.setSize(20, 20);
-        dStomp.setPosition(Gdx.graphics.getWidth() / 2 -10, dragonSpr.getHeight()/2+10);
 
         Pixmap pixmap= new Pixmap(0, 0, Pixmap.Format.RGBA8888);
         pixmap.setColor(1, 0, 0, 05f);
@@ -1057,14 +1040,14 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         pauseSettingsButton = new TextButton("Settings", skin, "default");
         SetButtonValues(pauseSettingsButton,pauseStage, 200f , 180f, Gdx.graphics.getWidth() /2 + 390f, Gdx.graphics.getHeight() / 2 + 250f);
 
-        defenseOne = new TextButton("Basic",skin,"default");
-        SetButtonValues(defenseOne,buildStage, 200f, 200f, Gdx.graphics.getWidth() /2 - 450, 250);
-        defenseTwo = new TextButton("Strong",skin,"default");
-        SetButtonValues(defenseTwo,buildStage, 200f, 200f, Gdx.graphics.getWidth() /2 - 100, 250);
-       // defenseThree = new TextButton("Drummer",skin,"default");
-       // SetButtonValues(defenseThree,buildStage, 200f, 200f, Gdx.graphics.getWidth() /2 + 50, 250);
-        defenseFour = new TextButton("Sniper",skin,"default");
-        SetButtonValues(defenseFour,buildStage, 200f, 200f, Gdx.graphics.getWidth() /2 + 250, 250);
+        defenseOne = new TextButton("Goblin",skin,"default");
+        SetButtonValues(defenseOne,buildStage, 200f, 200f, Gdx.graphics.getWidth() /2 - 550, 250);
+        defenseTwo = new TextButton("Minotaur",skin,"default");
+        SetButtonValues(defenseTwo,buildStage, 200f, 200f, Gdx.graphics.getWidth() /2 - 250, 250);
+        defenseThree = new TextButton("Drummer",skin,"default");
+        SetButtonValues(defenseThree,buildStage, 200f, 200f, Gdx.graphics.getWidth() /2 + 50, 250);
+        defenseFour = new TextButton("Drake",skin,"default");
+        SetButtonValues(defenseFour,buildStage, 200f, 200f, Gdx.graphics.getWidth() /2 + 350, 250);
         upgradeButtonOne = new TextButton("Upgrade", skin, "default");
         SetButtonValues(upgradeButtonOne, upgradeStage,200f,200f, Gdx.graphics.getWidth() /2 - 450, 275);
         upgradeButtonTwo = new TextButton("Upgrade", skin, "default");
@@ -1085,55 +1068,55 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
         //BUILD screen
         buildGoblinAttack = new Label("Attack: 200" , skin);
-        SetLabelValues(buildGoblinAttack, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 450, 700, 2);
+        SetLabelValues(buildGoblinAttack, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 550, 700, 2);
         buildGoblinAttack.setAlignment(Align.center);
         buildGoblinRange = new Label("Range: 200", skin);
-        SetLabelValues(buildGoblinRange, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 450, 600, 2);
+        SetLabelValues(buildGoblinRange, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 550, 600, 2);
         buildGoblinRange.setAlignment(Align.center);
         buildGoblinSpeed = new Label("Speed: 25", skin);
-        SetLabelValues(buildGoblinSpeed, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 450, 500, 2);
+        SetLabelValues(buildGoblinSpeed, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 550, 500, 2);
         buildGoblinSpeed.setAlignment(Align.center);
         buildGoblinCost = new Label("Cost: 400", skin);
-        SetLabelValues(buildGoblinCost, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 450, 800, 3);
+        SetLabelValues(buildGoblinCost, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 550, 800, 3);
         buildGoblinCost.setAlignment(Align.center);
 
         buildMinoAttack = new Label("Attack: 500", skin);
-        SetLabelValues(buildMinoAttack, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 100, 700, 2);
+        SetLabelValues(buildMinoAttack, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 250, 700, 2);
         buildMinoAttack.setAlignment(Align.center);
         buildMinoRange = new Label("Range: 150", skin);
-        SetLabelValues(buildMinoRange, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 100, 600, 2);
+        SetLabelValues(buildMinoRange, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 250, 600, 2);
         buildMinoRange.setAlignment(Align.center);
-        buildMinoSpeed = new Label("Speed: 15", skin);
-        SetLabelValues(buildMinoSpeed, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 100, 500, 2);
+        buildMinoSpeed = new Label("Speed: 20", skin);
+        SetLabelValues(buildMinoSpeed, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 250, 500, 2);
         buildMinoSpeed.setAlignment(Align.center);
         buildMinoCost = new Label("Cost: 800", skin);
-        SetLabelValues(buildMinoCost, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 100, 800, 3);
+        SetLabelValues(buildMinoCost, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 - 250, 800, 3);
         buildMinoCost.setAlignment(Align.center);
 
-//        buildDrumAttack = new Label("Attack: XX", skin);
-//        SetLabelValues(buildDrumAttack, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 50, 700, 2);
-//        buildDrumAttack.setAlignment(Align.center);
-//        buildDrumRange = new Label("Range: XX", skin);
-//        SetLabelValues(buildDrumRange, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 50, 600, 2);
-//        buildDrumRange.setAlignment(Align.center);
-//        buildDrumSpeed = new Label("Speed: XX", skin);
-//        SetLabelValues(buildDrumSpeed, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 50, 500, 2);
-//        buildDrumSpeed.setAlignment(Align.center);
-//        buildDrumCost = new Label("Cost: $$$", skin);
-//        SetLabelValues(buildDrumCost, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 50, 800, 3);
-//        buildDrumCost.setAlignment(Align.center);
+        buildDrumAttack = new Label("Attack: XX", skin);
+        SetLabelValues(buildDrumAttack, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 50, 700, 2);
+        buildDrumAttack.setAlignment(Align.center);
+        buildDrumRange = new Label("Range: XX", skin);
+        SetLabelValues(buildDrumRange, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 50, 600, 2);
+        buildDrumRange.setAlignment(Align.center);
+        buildDrumSpeed = new Label("Speed: XX", skin);
+        SetLabelValues(buildDrumSpeed, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 50, 500, 2);
+        buildDrumSpeed.setAlignment(Align.center);
+        buildDrumCost = new Label("Cost: $$$", skin);
+        SetLabelValues(buildDrumCost, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 50, 800, 3);
+        buildDrumCost.setAlignment(Align.center);
 
         buildDrakeAttack = new Label("Attack: 800", skin);
-        SetLabelValues(buildDrakeAttack, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 250, 700, 2);
+        SetLabelValues(buildDrakeAttack, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 350, 700, 2);
         buildDrakeAttack.setAlignment(Align.center);
         buildDrakeRange = new Label("Range: 500", skin);
-        SetLabelValues(buildDrakeRange, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 250, 600, 2);
+        SetLabelValues(buildDrakeRange, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 350, 600, 2);
         buildDrakeRange.setAlignment(Align.center);
-        buildDrakeSpeed = new Label("Speed: 5", skin);
-        SetLabelValues(buildDrakeSpeed, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 250, 500, 2);
+        buildDrakeSpeed = new Label("Speed: 10", skin);
+        SetLabelValues(buildDrakeSpeed, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 350, 500, 2);
         buildDrakeSpeed.setAlignment(Align.center);
         buildDrakeCost = new Label("Cost: 1500", skin);
-        SetLabelValues(buildDrakeCost, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 250, 800, 3);
+        SetLabelValues(buildDrakeCost, buildStage, 200f, 100f, Gdx.graphics.getWidth() / 2 + 350, 800, 3);
         buildDrakeCost.setAlignment(Align.center);
 
 
@@ -1163,11 +1146,11 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         upgradeAttackInfoLabel = new Label(toUpgrade.getDescription(), skin);
         SetLabelValues(upgradeAttackInfoLabel, upgradeStage, 200f, 100f, Gdx.graphics.getWidth() /2 - 275f,  Gdx.graphics.getHeight() / 2 + 175f, 2);
 
-        upgradeOneCostLabel = new Label("Cost: " + Integer.toString(100 * toUpgrade.getNumUpgrades()), skin);
+        upgradeOneCostLabel = new Label("Cost: 50", skin);
         SetLabelValues(upgradeOneCostLabel, upgradeStage, 200f, 100f, Gdx.graphics.getWidth() /2 - 400f,  Gdx.graphics.getHeight() / 2 - 350f, 2);
-        upgradeTwoCostLabel = new Label("Cost: "+ Integer.toString(100*toUpgrade.getNumUpgrades()), skin);
+        upgradeTwoCostLabel = new Label("Cost: 50", skin);
         SetLabelValues(upgradeTwoCostLabel, upgradeStage, 200f, 100f, Gdx.graphics.getWidth() /2 - 50f ,  Gdx.graphics.getHeight() / 2 - 350f, 2);
-        upgradeThreeCostLabel = new Label("Cost: "+ Integer.toString(100*toUpgrade.getNumUpgrades()), skin);
+        upgradeThreeCostLabel = new Label("Cost: 50", skin);
         SetLabelValues(upgradeThreeCostLabel, upgradeStage, 200f, 100f, Gdx.graphics.getWidth() /2 + 300f,  Gdx.graphics.getHeight() / 2 - 350f, 2);
 
         upgradeOneImprovementLabel = new Label(Integer.toString(toUpgrade.getDamage()) + "-->>" + Integer.toString(toUpgrade.getDamage()+50), skin);
@@ -1176,7 +1159,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         upgradeTwoImprovementLabel = new Label(Integer.toString(toUpgrade.getRange()) + "-->>" + Integer.toString(toUpgrade.getRange()+50), skin);
         SetLabelValues(upgradeTwoImprovementLabel, upgradeStage, 200f, 100f, Gdx.graphics.getWidth() /2 - 100f ,  Gdx.graphics.getHeight() / 2 - 80f, 2);
         upgradeTwoImprovementLabel.setAlignment(Align.center);
-        upgradeThreeImprovementLabel = new Label(Integer.toString((int)toUpgrade.getPresentedSpeed()) + "-->>" + Integer.toString((int)toUpgrade.getPresentedSpeed()+5), skin);
+        upgradeThreeImprovementLabel = new Label(Integer.toString((int)toUpgrade.getAtkSpeed()) + "-->>" + Integer.toString((int)toUpgrade.getAtkSpeed()+50), skin);
         SetLabelValues(upgradeThreeImprovementLabel, upgradeStage, 200f, 100f, Gdx.graphics.getWidth() /2 + 250f,  Gdx.graphics.getHeight() / 2 - 80f, 2);
         upgradeThreeImprovementLabel.setAlignment(Align.center);
 
@@ -1442,7 +1425,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
                 spawnTime++;
 
-                if(spawnTime == 100 && enemiesSpawned != enemiesToSpawn ) {
+                if(spawnTime == 100 && enemiesSpawned != 10) {
                     Enemy newEnemy;
                     if(waveCount > 1) {
                         Random randInt = new Random();
@@ -1547,6 +1530,8 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                                 if(enemyList.contains(projectile.getDefense().getTarget())) {
                                     toRemove = projectile.getDefense().getTarget();
                                     Gdx.app.log("Target", "killed");
+                                    meat += 25;
+
                                 }
                                 projectile.getDefense().setTarget(null);
                             }
@@ -1575,15 +1560,14 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                 newSprite.setPosition(toRemove.getGoldX(), toRemove.getGoldY());
                 goldList.add(newSprite);
             }
-            if(toRemove.getHealth() <= 0){
-                enemyDeath.play();
-                meat += 50;
-            }
+            enemyDeath.play();
 
             enemyList.remove(toRemove);
             toRemove = null;
             enemiesRemaining--;
-            if(enemiesRemaining <= 0 && enemiesSpawned >= enemiesToSpawn){
+            if(enemiesRemaining <= 0 && enemiesSpawned == 10){
+                success.play();
+                success.setVolume(100);
                 combatPhase = false;
                 enemiesSpawned = 0;
                 healthMod += 0.1;
@@ -1625,7 +1609,8 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
         background.draw(mainbatch, 1);
         dragonSpr.draw(mainbatch);
-
+        UIBackAbility2.draw(mainbatch,1);
+        UIBackAbility1.draw(mainbatch,1);
 
         //determine state of the game
         switch (state) {
@@ -1665,38 +1650,6 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                         startButton.setPosition(startButton.getX() + 5, startButton.getY());
                         buildButton.setPosition(buildButton.getX() + 5, buildButton.getY());
                     }
-
-                    //very rushed and brute forced fireball animation
-                    if(usingFireball){
-                        dragonsBreath.draw(mainbatch);
-                        if(dragonsBreath.getHeight() < 300) {
-
-                            dragonsBreath.setSize(dragonsBreath.getWidth(), dragonsBreath.getHeight() + 10);
-
-                        }else{usingFireball = false;}
-                    }else {
-                        if (dragonsBreath.getHeight() >= 100 && ability1CD > 0) {
-                            dragonsBreath.draw(mainbatch);
-                            dragonsBreath.setSize(dragonsBreath.getWidth()-1, dragonsBreath.getHeight() - 10);
-                        }
-                    }
-                    if(ability2CD > 0){
-
-                        if(dragonsRoar.getHeight() < 600){
-                            dragonsRoar.draw(mainbatch);
-                            dragonsRoar.setSize(dragonsRoar.getWidth() + 20, dragonsRoar.getHeight() + 20);
-                            dragonsRoar.setPosition(dragonsRoar.getX() - 10, dragonsRoar.getY() - 10);
-                        }
-                    }
-                    if(ability3CD > 0){
-
-                        if(dStomp.getHeight() < 2000){
-                            dStomp.draw(mainbatch);
-                            dStomp.setSize(dStomp.getWidth() + 50, dStomp.getHeight() + 50);
-                            dStomp.setPosition(dStomp.getX() - 25, dStomp.getY() - 25);
-                            //dStomp.setRotation(25);
-                        }
-                    }
                 } else {
                     if (startButton.getX() > 1585) {
                         buildButton.setPosition(buildButton.getX() - 5, buildButton.getY());
@@ -1730,9 +1683,6 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                         projectile.getSprite().draw(mainbatch);
                     }
                 }
-
-                UIBackAbility2.draw(mainbatch,1);
-                UIBackAbility1.draw(mainbatch,1);
 
                 pauseButton.draw(mainbatch, 1);
                 abilityOne.draw(mainbatch, 1);
@@ -1768,7 +1718,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     buildUIBack.draw(buildBatch, 1);
                     buildbackButton.draw(buildBatch, 1);
                     defenseOne.draw(buildBatch, 1);
-                 //   defenseThree.draw(buildBatch, 1);
+                    defenseThree.draw(buildBatch, 1);
                     defenseTwo.draw(buildBatch, 1);
                     defenseFour.draw(buildBatch, 1);
                     buildGoblinAttack.draw(buildBatch,1);
@@ -1781,10 +1731,10 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     buildMinoSpeed.draw(buildBatch,1);
                     buildMinoCost.draw(buildBatch,1);
 
-//                    buildDrumAttack.draw(buildBatch,1);
-//                    buildDrumRange.draw(buildBatch,1);
-//                    buildDrumSpeed.draw(buildBatch,1);
-//                    buildDrumCost.draw(buildBatch,1);
+                    buildDrumAttack.draw(buildBatch,1);
+                    buildDrumRange.draw(buildBatch,1);
+                    buildDrumSpeed.draw(buildBatch,1);
+                    buildDrumCost.draw(buildBatch,1);
 
                     buildDrakeAttack.draw(buildBatch,1);
                     buildDrakeRange.draw(buildBatch,1);
@@ -1798,7 +1748,6 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                 if (upgrading) {
 
                     upgradeBatch.begin();
-
 
                     overlay.draw(upgradeBatch, 0.5f);
                     buildUIBack.draw(upgradeBatch, 1);
@@ -1980,8 +1929,6 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                         buttonSound.play();
                         startWave.play();
                         enemyList = new ArrayList<Enemy>();
-                        enemiesToSpawn += (waveCount * 2);
-                        enemiesRemaining = enemiesToSpawn;
                         spawnTime = 0f;
                         waveCount++;
                     }
@@ -2009,7 +1956,6 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                 } else if (button.equals(abilityOne)) {
                     // if button is pressed during combat phase and skill is off cooldown
                     if (combatPhase == true && usingFireball == false && ability1CD <= 0) {
-                        dragonsBreath.setSize(80, 280);
                         dragonFireball.play();
                         ability1CD = ABILITY1_CD_TIME;
                         usingFireball = true;
@@ -2030,8 +1976,6 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                 } else if (button.equals(abilityTwo)) {
                     // if button is pressed during combat and is off cooldown
                     if (combatPhase == true && ability2CD <= 0) {
-                        dragonsRoar.setSize(20,20);
-                        dragonsRoar.setPosition(Gdx.graphics.getWidth() / 2 - 10, dragonSpr.getHeight() / 2 + 10);
                         dragonRoar.play();
                         ability2CD = ABILITY2_CD_TIME;
                         for (Enemy enemy : enemyList) {
@@ -2048,8 +1992,6 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     // if button is pressed during combat and is off cooldown
                     if (combatPhase == true && ability3CD <= 0) {
                         dragonStomp.play();
-                        dStomp.setSize(20,20);
-                        dStomp.setPosition(Gdx.graphics.getWidth() / 2 - 10, dragonSpr.getHeight() / 2 + 10);
                         ability3CD = ABILITY3_CD_TIME;
                         for (Enemy enemy : enemyList) {
                             if (enemy.getMovementPoint() == 0) {
@@ -2106,17 +2048,16 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     }
 
 
-               } //else if (button.equals(defenseThree)) {
-//                    buttonSound.play();
-//                    if (meat >= 800) {
-//                        toBuild = new Defense(2);
-//                        Gdx.app.log("new Building", "War Drummer");
-//                        resetStage();
-//                 }
+                } else if (button.equals(defenseThree)) {
+                    buttonSound.play();
+                    if (meat >= 800) {
+                        toBuild = new Defense(2);
+                        Gdx.app.log("new Building", "War Drummer");
+                        resetStage();
+                    }
 
 
-               // }
-            else if (button.equals(defenseFour)) {
+                } else if (button.equals(defenseFour)) {
                     buttonSound.play();
                     if (meat >= 1500) {
                         toBuild = new Defense(3);
@@ -2127,51 +2068,40 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
                 } else if (button.equals(upgradeButtonOne)) {
                     buttonSound.play();
-                    if(meat > 100 * toUpgrade.getNumUpgrades()) {
-                        toUpgrade.setDamage(toUpgrade.getDamage() + 50);
+                    toUpgrade.setDamage(toUpgrade.getDamage() + 50);
 
-                        resetStage();
-                        meat -= 100 * toUpgrade.getNumUpgrades();
-                        toUpgrade.setPresentedSpeed();
-                        toUpgrade.setNumUpgrades();
-                        upgrading = false;
-
-                        toUpgrade = null;
-                    }
+                    resetStage();
+                    upgrading = false;
+                    meat -= 50 * toUpgrade.getNumUpgrades();
+                    toUpgrade = null;
                 } else if (button.equals(upgradeButtonTwo)) {
                     buttonSound.play();
-                    if(meat > 100 * toUpgrade.getNumUpgrades()) {
-                        toUpgrade.setRange(toUpgrade.getRange() + 50);
-                        toUpgrade.setRangeRadious(new Circle(toUpgrade.getSprite().getX() + 50,
-                                toUpgrade.getSprite().getY() + 50, toUpgrade.getRange() + 50));
-                        meat -= 100 * toUpgrade.getNumUpgrades();
-                        toUpgrade.setPresentedSpeed();
-                        toUpgrade.setNumUpgrades();
-                        upgrading = false;
-                        resetStage();
-                        toUpgrade = null;
-                    }
+                    toUpgrade.setRange(toUpgrade.getRange() + 50);
+                    toUpgrade.setRangeRadious(new Circle(toUpgrade.getSprite().getX() + 50,
+                            toUpgrade.getSprite().getY() + 50, toUpgrade.getRange() + 50));
+
+                    upgrading = false;
+                    resetStage();
+                    meat -= 50 * toUpgrade.getNumUpgrades();
+                    toUpgrade = null;
                 } else if (button.equals(upgradeButtonThree)) {
                     buttonSound.play();
-                    if(meat > 100 * toUpgrade.getNumUpgrades()) {
-                        if (toUpgrade.getAtkSpeed() > 50) {
+                    if (toUpgrade.getAtkSpeed() > 50) {
+                        toUpgrade.setAtkSpeed((int) toUpgrade.getAtkSpeed() - 50);
+                        toUpgrade.setAtkCD(toUpgrade.getAtkSpeed());
 
-                            toUpgrade.setAtkSpeed((int) toUpgrade.getAtkSpeed() - 50);
-                            toUpgrade.setAtkCD(toUpgrade.getAtkSpeed());
-                            toUpgrade.setPresentedSpeed();
-
-                            meat -= 100 * toUpgrade.getNumUpgrades();
-                            toUpgrade.setNumUpgrades();
-                            upgrading = false;
-                            resetStage();
-                            toUpgrade = null;
-                        }
+                        upgrading = false;
+                        resetStage();
+                        meat -= 50 * toUpgrade.getNumUpgrades();
+                        toUpgrade = null;
                     }
 
                 }
+
+
+                // Gdx.app.log("MenuScreen: ", "gameScreen started");
             }
         });
-
         button.toFront();
 
         if(stage.equals(mainStage)){
@@ -2237,10 +2167,10 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
     }
     public void addEnemy(Enemy newEnemy) {
         newEnemy.setId(enemiesSpawned);
-        newEnemy.setHealth(newEnemy.getHealth() * healthMod);
+        newEnemy.setHealth(newEnemy.getHealth()* healthMod);
         enemyList.add(newEnemy);
         enemiesSpawned++;
-        //enemiesRemaining++;
+        enemiesRemaining++;
     }
 
 }

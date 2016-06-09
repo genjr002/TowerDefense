@@ -23,7 +23,6 @@ public class Defense extends Actor{
 
     private int damage;
     private float atkSpeed;
-    private float presentedSpeed;
     private float atkCD;
     private int range;
     private int cost;
@@ -56,7 +55,6 @@ public class Defense extends Actor{
             case 0:
                 damage = 200;
                 atkSpeed = 150;
-                presentedSpeed = 25;
                 atkCD = 150;
                 range = 200;
                 cost = 400;
@@ -71,7 +69,6 @@ public class Defense extends Actor{
             case 1:
                 damage = 500;
                 atkSpeed = 300;
-                presentedSpeed = 15;
                 atkCD = 300;
                 range = 150;
                 cost = 800;
@@ -84,27 +81,25 @@ public class Defense extends Actor{
 
                 break;
             case 2:
-//                damage = 0;
-//                atkSpeed = 500;
-//                presentedSpeed = 5;
-//                atkCD = 500;
-//                range = 400;
-//                cost = 200;
-//
-//                Pixmap pixmap2= new Pixmap(100, 100, Pixmap.Format.RGBA8888);
-//                pixmap2.setColor(1, 1, 0, 05f);
-//                pixmap2.fill();
-//                description = "Buffing Tower that deals no damage but increases\n damage of all towers within range";
-//
-//                texture = new TextureRegion(new Texture("DefenseBuff.png"));
-//                sprite = new Sprite(texture);
-//                portrait = new Sprite(texture);
+                damage = 0;
+                atkSpeed = 500;
+                atkCD = 500;
+                range = 400;
+                cost = 200;
+
+                Pixmap pixmap2= new Pixmap(100, 100, Pixmap.Format.RGBA8888);
+                pixmap2.setColor(1, 1, 0, 05f);
+                pixmap2.fill();
+                description = "Buffing Tower that deals no damage but increases\n damage of all towers within range";
+
+                texture = new TextureRegion(new Texture("DefenseBuff.png"));
+                sprite = new Sprite(texture);
+                portrait = new Sprite(texture);
 
                 break;
             case 3:
                 damage = 800;
                 atkSpeed = 600;
-                presentedSpeed = 5;
                 atkCD = 600;
                 range = 400;
                 cost = 1500;
@@ -221,8 +216,8 @@ public class Defense extends Actor{
         return numUpgrades;
     }
 
-    public void setNumUpgrades() {
-        this.numUpgrades++;
+    public void setNumUpgrades(int numUpgrades) {
+        this.numUpgrades = numUpgrades;
     }
 
     public Integer getType(){
@@ -243,13 +238,5 @@ public class Defense extends Actor{
 
     public void setChangedSprite(boolean changedSprite) {
         this.changedSprite = changedSprite;
-    }
-
-    public float getPresentedSpeed() {
-        return presentedSpeed;
-    }
-
-    public void setPresentedSpeed() {
-        this.presentedSpeed += 5;
     }
 }

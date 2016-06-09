@@ -86,10 +86,10 @@ public class Enemy {
 
             // barbarian, added by Brandon (coobj006)
             case (3):
-                texture = new TextureRegion(new Texture("Barbarian.png")); //need to replace at some point
+                texture = new TextureRegion(new Texture("knight.png")); //need to replace at some point
                 sprite = new Sprite(texture);
 
-                texture = new TextureRegion(new Texture("Barbarian_Carrying.png")); //this one as well
+                texture = new TextureRegion(new Texture("knight_Carrying.png")); //this one as well
                 altSprite = new Sprite(texture);
 
                 id = 3;
