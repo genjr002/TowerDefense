@@ -98,10 +98,10 @@ public class SaveData implements Serializable {
 
         //screenGrid = new Cell[theGrid[0].length][theGrid[1].length];
         //screenGrid = new Cell[15][10];
-        gridOccupiedCells = new int[15][10];
+        gridOccupiedCells = new int[GameScreen.MAX_CELLS_X][GameScreen.MAX_CELLS_Y];
 
-        for (int r = 0; r < 15; r++){
-            for (int c = 0; c < 10; c++){
+        for (int r = 0; r < GameScreen.MAX_CELLS_X; r++){
+            for (int c = 0; c < GameScreen.MAX_CELLS_Y; c++){
                 //screenGrid[r][c] = theGrid[r][c];
 
                 //if the cell is occupied (true) set to 1

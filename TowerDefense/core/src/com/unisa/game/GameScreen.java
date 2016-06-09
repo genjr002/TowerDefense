@@ -229,6 +229,8 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
     private Cell[][] screenGrid;
     private int[][] occupiedCellsSave;
+    public static final int MAX_CELLS_X = 15;
+    public static final int MAX_CELLS_Y = 8;
 
     // constructor to keep a reference to the main Game class
     public GameScreen(TowerDefense game){
@@ -310,8 +312,8 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         }
 
         //set which cells were occupied pre-save
-        for (int r = 0; r < 15; r++){
-            for (int c = 0; c < 10; c++){
+        for (int r = 0; r < MAX_CELLS_X; r++){
+            for (int c = 0; c < MAX_CELLS_Y; c++){
                 if (occupiedCellsSave[r][c] == 1){
                     screenGrid[r][c].setCellOccupied(true);
                 } else {
@@ -553,8 +555,8 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     }
 
                     //loop through all the grid locations
-                    for (int r = 0; r < 15; r++) {
-                        for (int c = 0; c < 10; c++) {
+                    for (int r = 0; r < MAX_CELLS_X; r++) {
+                        for (int c = 0; c < MAX_CELLS_Y; c++) {
                             //check if we have an overlap with the current grid slot
                             if (toBuild.getDefenseBounds().overlaps(screenGrid[r][c].getCellBounds())) {
 
@@ -621,8 +623,8 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                     }
 
                     //loop through all the grid locations
-                    for (int r = 0; r < 15; r++) {
-                        for (int c = 0; c < 10; c++) {
+                    for (int r = 0; r < MAX_CELLS_X; r++) {
+                        for (int c = 0; c < MAX_CELLS_Y; c++) {
                             //check if we have an overlap with the current grid slot
 
                             if (toBuild != null) {
@@ -977,14 +979,14 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         if (x - 50 < 0) {
             x = 40;
         }
-        if (x + 50 > Gdx.graphics.getWidth()) {
-            x = Gdx.graphics.getWidth() - 40;
+        if (x > Gdx.graphics.getWidth() - (Gdx.graphics.getWidth() / 8)) {
+            x = Gdx.graphics.getWidth() - 250;
         }
         if (y - 50 < 240) {
             y = 300;
         }
         if (y + 50 > Gdx.graphics.getHeight()) {
-            y = Gdx.graphics.getHeight() - 40;
+            y = Gdx.graphics.getHeight() - 80;
         }
 
         currentX = x;
@@ -993,21 +995,21 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
     public void CreateScreenGrid(){
 
-        screenGrid = new Cell[15][10];
+        screenGrid = new Cell[MAX_CELLS_X][MAX_CELLS_Y];
 
         //screenGrid[0][0] = new Rectangle(0f , Gdx.graphics.getHeight() - 120f,  Gdx.graphics.getWidth() / 16,  Gdx.graphics.getHeight() / 9);
-        for (int x = 0; x < 15; x++){
-            for (int y = 0; y < 10; y++){
+        for (int x = 0; x < MAX_CELLS_X; x++){
+            for (int y = 0; y < MAX_CELLS_Y; y++){
 
                 //int
                 Rectangle temp;
 
                 Gdx.app.log("creating grid position: ", "x: " + x + " y: " + y);
                 Gdx.app.log("x pos: ", x * (Gdx.graphics.getWidth() / 17) + "" );
-                Gdx.app.log("y pos: ", (y * (Gdx.graphics.getHeight() / 13) + 240) + "" );
+                Gdx.app.log("y pos: ", (y * (Gdx.graphics.getHeight() / 11) + 240) + "" );
                 Gdx.app.log("width: ", Gdx.graphics.getWidth() / 17 + "");
-                Gdx.app.log("height: ", Gdx.graphics.getHeight() / 13 + "");
-                temp = new Rectangle(x * (Gdx.graphics.getWidth() / 17) , (y * (Gdx.graphics.getHeight() / 13) + 240),  Gdx.graphics.getWidth() / 17,  Gdx.graphics.getHeight() / 13);
+                Gdx.app.log("height: ", Gdx.graphics.getHeight() / 11 + "");
+                temp = new Rectangle(x * (Gdx.graphics.getWidth() / 17) , (y * (Gdx.graphics.getHeight() / 11) + 240),  Gdx.graphics.getWidth() / 17,  Gdx.graphics.getHeight() / 11);
 
                 //check if it's a cell on the path
                 boolean pathCell = false;
