@@ -52,7 +52,7 @@ public class MenuScreen implements Screen {
         stage = new Stage();
 
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        texture = new TextureRegion(new Texture("TowerDefense_MainScreen_Background.png"));
+        texture = new TextureRegion(new Texture("TowerDefense_MainScreen_Background2.png"));
 
         background = new Image(texture);
         background.toBack();

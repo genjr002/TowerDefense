@@ -408,11 +408,12 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
 
         //upgrade screen temp area
-        texture = new TextureRegion(new Texture("UIBackground1.png"));
+        //texture = new TextureRegion(new Texture("UIBackground1.png"));
+        texture = new TextureRegion(new Texture("stonebacking.png"));
         upgradeUIBack2 = new Image(texture);
-        upgradeUIBack2.setHeight(200);
-        upgradeUIBack2.setWidth(900);
-        upgradeUIBack2.setPosition(Gdx.graphics.getWidth() / 2 - 350, Gdx.graphics.getHeight() / 2 + 135);
+        upgradeUIBack2.setHeight(180);
+        upgradeUIBack2.setWidth(1100);
+        upgradeUIBack2.setPosition(Gdx.graphics.getWidth() / 2 - 555f, Gdx.graphics.getHeight() / 2 + 140);
 
         //selected tower's portrait
         Pixmap pixmapPortrait = new Pixmap(150, 150, Pixmap.Format.RGBA8888);
@@ -523,7 +524,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                             upgradeScreen();
                             Gdx.input.setInputProcessor(upgradeStage);
                             portraitSpr = defense.getPortrait();
-                            portraitSpr.setPosition(Gdx.graphics.getWidth() / 2 - 525f, Gdx.graphics.getHeight() / 2 + 185f);
+                            portraitSpr.setPosition(Gdx.graphics.getWidth() / 2 - 450f, Gdx.graphics.getHeight() / 2 + 180f);
 
                             overlay.setHeight(Gdx.graphics.getHeight());
                             overlay.setWidth(Gdx.graphics.getWidth());
@@ -730,7 +731,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
         texture = new TextureRegion(new Texture("stomp.png"));
         dStomp = new Sprite(texture);
         dStomp.setSize(20, 20);
-        dStomp.setPosition(Gdx.graphics.getWidth() / 2 -10, dragonSpr.getHeight()/2+10);
+        dStomp.setPosition(Gdx.graphics.getWidth() / 2 - 10, dragonSpr.getHeight() / 2 + 10);
 
         Pixmap pixmap= new Pixmap(0, 0, Pixmap.Format.RGBA8888);
         pixmap.setColor(1, 0, 0, 05f);
@@ -752,13 +753,14 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
 
 
 
-        texture = new TextureRegion(new Texture("UIBackground1.png"));
+        texture = new TextureRegion(new Texture("UIBackground4.png"));
         UIBackAbility1 = new Image(texture);
         UIBackAbility1.setPosition(Gdx.graphics.getWidth() - 600, 0);
         mainStage.addActor(UIBackAbility1);
         UIBackAbility2 = new Image(texture);
         UIBackAbility2.setPosition(0, 0);
         mainStage.addActor(UIBackAbility2);
+        texture = new TextureRegion(new Texture("UIBackground5-2.png"));
         UIBackPauseB = new Image(texture);
         UIBackPauseB.setHeight(150);
         UIBackPauseB.setWidth(150);
@@ -1014,9 +1016,9 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
                 //check if it's a cell on the path
                 boolean pathCell = false;
 
-                if (x == 3 && y >= 7 && y <= 9){
+                if (x == 3 && y >= 5 && y <= 7){
                     pathCell = true;
-                } else if (y == 6 && x >= 3 && x <= 13){
+                } else if (y == 5 && x >= 4 && x <= 13){
                     pathCell = true;
                 } else if (x == 13 && y >= 3 && y <= 5){
                     pathCell = true;
@@ -1163,7 +1165,7 @@ public class GameScreen extends ApplicationAdapter implements Screen , InputProc
     public void upgradeScreen(){
         //UPGRADE screen
         upgradeAttackInfoLabel = new Label(toUpgrade.getDescription(), skin);
-        SetLabelValues(upgradeAttackInfoLabel, upgradeStage, 200f, 100f, Gdx.graphics.getWidth() /2 - 275f,  Gdx.graphics.getHeight() / 2 + 175f, 2);
+        SetLabelValues(upgradeAttackInfoLabel, upgradeStage, 200f, 100f, Gdx.graphics.getWidth() /2 - 285f,  Gdx.graphics.getHeight() / 2 + 175f, 2);
 
         upgradeOneCostLabel = new Label("Cost: " + Integer.toString(100 * toUpgrade.getNumUpgrades()), skin);
         SetLabelValues(upgradeOneCostLabel, upgradeStage, 200f, 100f, Gdx.graphics.getWidth() /2 - 400f,  Gdx.graphics.getHeight() / 2 - 350f, 2);

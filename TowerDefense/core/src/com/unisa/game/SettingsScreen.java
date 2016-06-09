@@ -153,7 +153,7 @@ public class SettingsScreen implements Screen {
             }
         });
 
-        background = new Texture("TowerDefense_MainScreen_Background.png");
+        background = new Texture("TowerDefense_MainScreen_Background2.png");
         bg = new Image(background);
         bg.setHeight(Gdx.graphics.getHeight());
         bg.setWidth(Gdx.graphics.getWidth());
